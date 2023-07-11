@@ -1,0 +1,16 @@
+[package]
+name = "meta"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+tokio = { version = "1.28", default-features = false, features = ["macros", "rt-multi-thread", "fs"] }
+tracing-subscriber = { version = "0.3", default-features = false, features = ["fmt", "ansi"] }
+axum = { version = "0.6", default-features = false, features = ["tokio", "http1"] }
+serde = { version = "1.0", default-features = false, features = ["derive"] }
+time = { version = "0.3", default-features = false, features = ["serde"] }
+serde_yaml = { version = "0.9", default-features = false }
+clap = { version = "4.3", features = ["derive", "env"] }
+markdown = "1.0.0-alpha.9"
+tracing = "0.1"
+anyhow = "1.0"
