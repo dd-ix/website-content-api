@@ -1,5 +1,7 @@
+use axum::http::Method;
 use axum::Server;
 use clap::Parser;
+use tower_http::cors::{Any, CorsLayer};
 use tracing::{error, info, Level};
 use tracing_subscriber::FmtSubscriber;
 
@@ -37,7 +39,11 @@ async fn main() -> anyhow::Result<()> {
     news: News::load(&args.content_directory.join("news")).await?,
   };
 
-  let router = route().with_state(state);
+  let cors = CorsLayer::new()
+    .allow_methods([Method::GET, Method::POST])
+    .allow_origin(Any);
+
+  let router = route().layer(cors).with_state(state);
 
   let server = Server::bind(&args.listen_addr).serve(router.into_make_service());
 

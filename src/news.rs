@@ -86,6 +86,8 @@ impl News {
       });
     }
 
+    posts.sort_by(|a, b| a.idx.cmp(&b.idx));
+
     let small_posts = posts
       .iter()
       .map(|post| SmallPost {
