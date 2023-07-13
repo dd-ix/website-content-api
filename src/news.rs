@@ -15,7 +15,7 @@ pub(crate) struct News {
 
 #[derive(Deserialize)]
 pub(crate) struct WrittenPostMeta {
-  name: String,
+  title: String,
   #[serde(with = "my_date_format")]
   published: Date,
   #[serde(with = "my_date_format")]
@@ -30,7 +30,7 @@ pub(crate) struct Post {
   slug: String,
   lang: Language,
   idx: u32,
-  name: String,
+  title: String,
   #[serde(with = "my_date_format")]
   published: Date,
   #[serde(with = "my_date_format")]
@@ -46,7 +46,7 @@ pub(crate) struct SmallPost {
   slug: String,
   lang: Language,
   idx: u32,
-  name: String,
+  title: String,
   #[serde(with = "my_date_format")]
   published: Date,
   #[serde(with = "my_date_format")]
@@ -76,7 +76,7 @@ impl News {
         slug: slug.to_string(),
         lang,
         idx,
-        name: meta.name,
+        title: meta.title,
         published: meta.published,
         modified: meta.modified,
         description: meta.description,
@@ -92,7 +92,7 @@ impl News {
         slug: post.slug.clone(),
         lang: post.lang,
         idx: post.idx,
-        name: post.name.clone(),
+        title: post.title.clone(),
         published: post.published,
         modified: post.modified,
         description: post.description.clone(),
