@@ -1,0 +1,22 @@
+use crate::lang::Language;
+use axum::extract::{Path, State};
+use axum::http::StatusCode;
+use axum::Json;
+
+use crate::news::{Post, SmallPost};
+use crate::state::MetaState;
+
+pub(crate) async fn list_posts(State(state): State<MetaState>) -> Json<Vec<SmallPost>> {
+  Json(state.news.posts().to_vec())
+}
+
+pub(crate) async fn find_post(
+  State(state): State<MetaState>,
+  Path((language, slug)): Path<(Language, String)>,
+) -> Result<Json<Post>, StatusCode> {
+  state
+    .news
+    .find_post(language, &slug)
+    .map(|post| Json(post.clone()))
+    .ok_or(StatusCode::NOT_FOUND)
+}

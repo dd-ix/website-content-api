@@ -1,11 +1,18 @@
-use crate::args::Args;
-use axum::{Router, Server};
+use axum::Server;
 use clap::Parser;
 use tracing::{error, info, Level};
 use tracing_subscriber::FmtSubscriber;
 
+use crate::args::Args;
+use crate::news::News;
+use crate::routes::route;
+use crate::state::MetaState;
+
 mod args;
+mod lang;
 mod news;
+mod routes;
+mod state;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
@@ -26,7 +33,11 @@ async fn main() -> anyhow::Result<()> {
     "..."
   ));
 
-  let router = Router::new();
+  let state = MetaState {
+    news: News::load(&args.content_directory.join("news")).await?,
+  };
+
+  let router = route().with_state(state);
 
   let server = Server::bind(&args.listen_addr).serve(router.into_make_service());
 

@@ -1,4 +1,5 @@
 use std::net::SocketAddr;
+use std::path::PathBuf;
 
 use clap::Parser;
 
@@ -11,4 +12,7 @@ pub(crate) struct Args {
     default_value = "127.0.0.1:8080"
   )]
   pub(crate) listen_addr: SocketAddr,
+
+  #[clap(short, long, env = "META_CONTENT_DIRECTORY", default_value = "content")]
+  pub(crate) content_directory: PathBuf,
 }
