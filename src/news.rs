@@ -28,7 +28,7 @@ pub(crate) struct WrittenPostMeta {
 #[derive(Serialize, Debug, Clone)]
 pub(crate) struct Post {
   slug: String,
-  language: Language,
+  lang: Language,
   idx: u32,
   name: String,
   #[serde(with = "my_date_format")]
@@ -44,7 +44,7 @@ pub(crate) struct Post {
 #[derive(Serialize, Debug, Clone)]
 pub(crate) struct SmallPost {
   slug: String,
-  language: Language,
+  lang: Language,
   idx: u32,
   name: String,
   #[serde(with = "my_date_format")]
@@ -70,11 +70,11 @@ impl News {
 
       let meta: WrittenPostMeta = serde_yaml::from_str(meta)?;
       let file_name = path.file_name().unwrap().to_str().unwrap();
-      let (idx, language, slug) = parse_file_name(file_name)?;
+      let (idx, lang, slug) = parse_file_name(file_name)?;
 
       posts.push(Post {
         slug: slug.to_string(),
-        language,
+        lang,
         idx,
         name: meta.name,
         published: meta.published,
@@ -90,7 +90,7 @@ impl News {
       .iter()
       .map(|post| SmallPost {
         slug: post.slug.clone(),
-        language: post.language,
+        lang: post.lang,
         idx: post.idx,
         name: post.name.clone(),
         published: post.published,
@@ -111,11 +111,11 @@ impl News {
     &self.small_posts
   }
 
-  pub(crate) fn find_post(&self, language: Language, slug: &str) -> Option<&Post> {
+  pub(crate) fn find_post(&self, lang: Language, slug: &str) -> Option<&Post> {
     self
       .posts
       .iter()
-      .find(|post| post.language == language && post.slug == slug)
+      .find(|post| post.lang == lang && post.slug == slug)
   }
 }
 

@@ -16,7 +16,7 @@ impl TryFrom<&str> for Language {
     match value {
       "en" => Ok(Language::English),
       "de" => Ok(Language::German),
-      _ => Err(anyhow!("Invalid language code {}", value)),
+      _ => Err(anyhow!("Invalid lang code {}", value)),
     }
   }
 }

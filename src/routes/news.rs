@@ -12,11 +12,11 @@ pub(crate) async fn list_posts(State(state): State<MetaState>) -> Json<Vec<Small
 
 pub(crate) async fn find_post(
   State(state): State<MetaState>,
-  Path((language, slug)): Path<(Language, String)>,
+  Path((lang, slug)): Path<(Language, String)>,
 ) -> Result<Json<Post>, StatusCode> {
   state
     .news
-    .find_post(language, &slug)
+    .find_post(lang, &slug)
     .map(|post| Json(post.clone()))
     .ok_or(StatusCode::NOT_FOUND)
 }

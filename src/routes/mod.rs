@@ -9,5 +9,5 @@ mod news;
 pub(crate) fn route() -> Router<MetaState> {
   Router::new()
     .route("/news", get(list_posts))
-    .route("/news/:language/:slug", get(find_post))
+    .route("/news/:lang/:slug", get(find_post))
 }
