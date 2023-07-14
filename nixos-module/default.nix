@@ -75,7 +75,7 @@ in
       isNormalUser = false;
       isSystemUser = true;
       group = cfg.group;
-      uid = 1502;
+      uid = 1503;
     };
     users.groups."foundation" = {};
   };
