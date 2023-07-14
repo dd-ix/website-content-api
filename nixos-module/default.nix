@@ -57,6 +57,7 @@ in
             "RUST_LOG" = "${cfg.logLevel}";
             "RUST_BACKTRACE" = if (cfg.logLevel == "info") then "0" else "1";
             "FOUNDATION_LISTEN_ADDR" = "${cfg.http.host}:${toString cfg.http.port}";
+            "FOUNDATION_CONTENT_DIR" = "${pkgs.website-content}";
           };
 
           serviceConfig = {

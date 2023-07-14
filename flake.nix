@@ -7,18 +7,12 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    # needed to set up the schema in test vm database
-    tlms-rs = {
-      url = "github:tlm-solutions/tlms.rs";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
     utils = {
       url = "github:numtide/flake-utils";
     };
   };
 
-  outputs = inputs@{ self, nixpkgs, naersk, tlms-rs, utils, ... }:
+  outputs = inputs@{ self, nixpkgs, naersk, utils, ... }:
     utils.lib.eachDefaultSystem
       (system:
         let

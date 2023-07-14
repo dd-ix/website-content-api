@@ -40,7 +40,6 @@
       "inputs": {
         "naersk": "naersk",
         "nixpkgs": "nixpkgs",
-        "tlms-rs": "tlms-rs",
         "utils": "utils"
       }
     },
@@ -56,26 +55,6 @@
       "original": {
         "owner": "nix-systems",
         "repo": "default",
-        "type": "github"
-      }
-    },
-    "tlms-rs": {
-      "inputs": {
-        "nixpkgs": [
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1684699599,
-        "narHash": "sha256-dgGBh23d70GBCsOhW+6sG6PUI79CUy7fI4bCCvjPRI8=",
-        "owner": "tlm-solutions",
-        "repo": "tlms.rs",
-        "rev": "31b1ba0092ed99a36b3c0215dc35d4dcb545eddb",
-        "type": "github"
-      },
-      "original": {
-        "owner": "tlm-solutions",
-        "repo": "tlms.rs",
         "type": "github"
       }
     },

@@ -13,6 +13,6 @@ pub(crate) struct Args {
   )]
   pub(crate) listen_addr: SocketAddr,
 
-  #[clap(short, long, env = "META_CONTENT_DIRECTORY", default_value = "content")]
+  #[clap(short, long, env = "FOUNDATION_CONTENT_DIRECTORY", default_value = "content")]
   pub(crate) content_directory: PathBuf,
 }
