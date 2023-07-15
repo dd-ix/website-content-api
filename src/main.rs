@@ -8,7 +8,7 @@ use tracing_subscriber::FmtSubscriber;
 use crate::args::Args;
 use crate::news::News;
 use crate::routes::route;
-use crate::state::MetaState;
+use crate::state::FoundationState;
 
 mod args;
 mod lang;
@@ -35,7 +35,7 @@ async fn main() -> anyhow::Result<()> {
     "..."
   ));
 
-  let state = MetaState {
+  let state = FoundationState {
     news: News::load(&args.content_directory.join("news")).await?,
   };
 

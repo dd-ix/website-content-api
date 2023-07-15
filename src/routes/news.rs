@@ -4,15 +4,15 @@ use axum::http::StatusCode;
 use axum::Json;
 
 use crate::news::{Post, SmallPost};
-use crate::state::MetaState;
+use crate::state::FoundationState;
 
-pub(crate) async fn list_posts(State(state): State<MetaState>) -> Json<Vec<SmallPost>> {
+pub(crate) async fn list_posts(State(state): State<FoundationState>) -> Json<Vec<SmallPost>> {
   Json(state.news.posts().to_vec())
 }
 
 pub(crate) async fn find_post(
-  State(state): State<MetaState>,
-  Path((lang, slug)): Path<(Language, String)>,
+    State(state): State<FoundationState>,
+    Path((lang, slug)): Path<(Language, String)>,
 ) -> Result<Json<Post>, StatusCode> {
   state
     .news
