@@ -15,3 +15,14 @@ clap = { version = "4.3", features = ["derive", "env"] }
 markdown = "1.0.0-alpha.9"
 tracing = "0.1"
 anyhow = "1.0"
+
+[profile.release]
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true
+
+# by overriding our dependencies' compilation settings, we can further optimize>
+# https://docs.rust-embedded.org/book/unsorted/speed-vs-size.html#optimizing-de>
+[profile.release.package."*"]
+codegen-units = 1
