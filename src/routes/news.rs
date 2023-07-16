@@ -11,8 +11,8 @@ pub(crate) async fn list_posts(State(state): State<FoundationState>) -> Json<Vec
 }
 
 pub(crate) async fn find_post(
-    State(state): State<FoundationState>,
-    Path((lang, slug)): Path<(Language, String)>,
+  State(state): State<FoundationState>,
+  Path((lang, slug)): Path<(Language, String)>,
 ) -> Result<Json<Post>, StatusCode> {
   state
     .news

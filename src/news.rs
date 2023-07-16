@@ -2,10 +2,14 @@ use std::path::Path;
 use std::sync::Arc;
 
 use anyhow::anyhow;
-use serde::{Deserialize, Serialize};
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
+use serde::de::Error;
 use time::Date;
 
 use crate::lang::Language;
+
+#[derive(Copy, Clone, Debug)]
+struct MyDate(Date);
 
 #[derive(Debug, Clone)]
 pub(crate) struct News {
@@ -16,10 +20,8 @@ pub(crate) struct News {
 #[derive(Deserialize)]
 pub(crate) struct WrittenPostMeta {
   title: String,
-  #[serde(with = "my_date_format")]
-  published: Date,
-  #[serde(with = "my_date_format")]
-  modified: Date,
+  published: MyDate,
+  modified: Option<MyDate>,
   description: String,
   keywords: Vec<String>,
   authors: Vec<String>,
@@ -31,10 +33,8 @@ pub(crate) struct Post {
   lang: Language,
   idx: u32,
   title: String,
-  #[serde(with = "my_date_format")]
-  published: Date,
-  #[serde(with = "my_date_format")]
-  modified: Date,
+  published: MyDate,
+  modified: Option<MyDate>,
   description: String,
   keywords: Vec<String>,
   authors: Vec<String>,
@@ -47,10 +47,8 @@ pub(crate) struct SmallPost {
   lang: Language,
   idx: u32,
   title: String,
-  #[serde(with = "my_date_format")]
-  published: Date,
-  #[serde(with = "my_date_format")]
-  modified: Date,
+  published: MyDate,
+  modified: Option<MyDate>,
   description: String,
   keywords: Vec<String>,
   authors: Vec<String>,
@@ -139,34 +137,26 @@ fn parse_file_name(file_name: &str) -> anyhow::Result<(u32, Language, &str)> {
   Ok((idx, lang, slug))
 }
 
-mod my_date_format {
-  use serde::de::Error;
-  use serde::{self, Deserialize, Deserializer, Serializer};
-  use time::Date;
-
-  pub fn serialize<S>(date: &Date, serializer: S) -> Result<S::Ok, S::Error>
-  where
-    S: Serializer,
+impl Serialize for MyDate {
+  fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+      S: Serializer,
   {
     let s = format!(
       "{:0>4}-{:0>2}-{:0>2}",
-      date.year(),
-      date.month() as u8,
-      date.day()
+      self.0.year(),
+      self.0.month() as u8,
+      self.0.day()
     );
+
     serializer.serialize_str(&s)
   }
+}
 
-  // The signature of a deserialize_with function must follow the pattern:
-  //
-  //    fn deserialize<'de, D>(D) -> Result<T, D::Error>
-  //    where
-  //        D: Deserializer<'de>
-  //
-  // although it may also be generic over the output types T.
-  pub fn deserialize<'de, D>(deserializer: D) -> Result<Date, D::Error>
-  where
-    D: Deserializer<'de>,
+impl<'de> Deserialize<'de> for MyDate {
+  fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+      D: Deserializer<'de>,
   {
     let s = String::deserialize(deserializer)?;
     let mut split = s.split('-');
@@ -196,6 +186,7 @@ mod my_date_format {
         .map_err(|e| Error::custom(format!("{}", e)))?,
       day,
     )
-    .map_err(|e| Error::custom(format!("{}", e)))
+      .map_err(|e| Error::custom(format!("{}", e)))
+      .map(|date| MyDate(date))
   }
 }
