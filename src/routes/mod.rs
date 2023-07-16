@@ -8,6 +8,6 @@ mod news;
 
 pub(crate) fn route() -> Router<FoundationState> {
   Router::new()
-    .route("/news", get(list_posts))
+    .route("/news/:lang", get(list_posts))
     .route("/news/:lang/:slug", get(find_post))
 }

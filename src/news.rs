@@ -2,8 +2,8 @@ use std::path::Path;
 use std::sync::Arc;
 
 use anyhow::anyhow;
-use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use serde::de::Error;
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use time::Date;
 
 use crate::lang::Language;
@@ -13,8 +13,8 @@ struct MyDate(Date);
 
 #[derive(Debug, Clone)]
 pub(crate) struct News {
-  posts: Arc<Vec<Post>>,
-  small_posts: Arc<Vec<SmallPost>>,
+  posts: Arc<Vec<Arc<Post>>>,
+  small_posts: Arc<Vec<Arc<SmallPost>>>,
 }
 
 #[derive(Deserialize)]
@@ -70,7 +70,7 @@ impl News {
       let file_name = path.file_name().unwrap().to_str().unwrap();
       let (idx, lang, slug) = parse_file_name(file_name)?;
 
-      posts.push(Post {
+      posts.push(Arc::new(Post {
         slug: slug.to_string(),
         lang,
         idx,
@@ -81,23 +81,25 @@ impl News {
         keywords: meta.keywords,
         authors: meta.authors,
         body: markdown::to_html(body),
-      });
+      }));
     }
 
     posts.sort_by(|a, b| a.idx.cmp(&b.idx));
 
     let small_posts = posts
       .iter()
-      .map(|post| SmallPost {
-        slug: post.slug.clone(),
-        lang: post.lang,
-        idx: post.idx,
-        title: post.title.clone(),
-        published: post.published,
-        modified: post.modified,
-        description: post.description.clone(),
-        keywords: post.keywords.clone(),
-        authors: post.authors.clone(),
+      .map(|post| {
+        Arc::new(SmallPost {
+          slug: post.slug.clone(),
+          lang: post.lang,
+          idx: post.idx,
+          title: post.title.clone(),
+          published: post.published,
+          modified: post.modified,
+          description: post.description.clone(),
+          keywords: post.keywords.clone(),
+          authors: post.authors.clone(),
+        })
       })
       .collect();
 
@@ -107,15 +109,21 @@ impl News {
     })
   }
 
-  pub(crate) fn posts(&self) -> &[SmallPost] {
-    &self.small_posts
+  pub(crate) fn posts(&self, lang: Language) -> Vec<Arc<SmallPost>> {
+    self
+      .small_posts
+      .iter()
+      .filter(|post| post.lang == lang)
+      .cloned()
+      .collect()
   }
 
-  pub(crate) fn find_post(&self, lang: Language, slug: &str) -> Option<&Post> {
+  pub(crate) fn find_post(&self, lang: Language, slug: &str) -> Option<Arc<Post>> {
     self
       .posts
       .iter()
       .find(|post| post.lang == lang && post.slug == slug)
+      .cloned()
   }
 }
 
@@ -139,8 +147,8 @@ fn parse_file_name(file_name: &str) -> anyhow::Result<(u32, Language, &str)> {
 
 impl Serialize for MyDate {
   fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-      S: Serializer,
+  where
+    S: Serializer,
   {
     let s = format!(
       "{:0>4}-{:0>2}-{:0>2}",
@@ -155,8 +163,8 @@ impl Serialize for MyDate {
 
 impl<'de> Deserialize<'de> for MyDate {
   fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-    where
-      D: Deserializer<'de>,
+  where
+    D: Deserializer<'de>,
   {
     let s = String::deserialize(deserializer)?;
     let mut split = s.split('-');
@@ -186,7 +194,7 @@ impl<'de> Deserialize<'de> for MyDate {
         .map_err(|e| Error::custom(format!("{}", e)))?,
       day,
     )
-      .map_err(|e| Error::custom(format!("{}", e)))
-      .map(|date| MyDate(date))
+    .map_err(|e| Error::custom(format!("{}", e)))
+    .map(MyDate)
   }
 }
