@@ -7,12 +7,14 @@ use tracing_subscriber::FmtSubscriber;
 
 use crate::args::Args;
 use crate::documents::Documents;
+use crate::static_content::StaticContent;
 use crate::news::News;
 use crate::routes::route;
 use crate::state::FoundationState;
 
 mod args;
 mod documents;
+mod static_content;
 mod lang;
 mod news;
 mod routes;
@@ -40,6 +42,7 @@ async fn main() -> anyhow::Result<()> {
   let state = FoundationState {
     news: News::load(&args.content_directory.join("news")).await?,
     documents: Documents::load(&args.content_directory.join("documents")).await?,
+    static_content: StaticContent::load(&args.content_directory.join("documents")),
   };
 
   let cors = CorsLayer::new()
