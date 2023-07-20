@@ -22,7 +22,6 @@ lto = true
 codegen-units = 1
 panic = "abort"
 strip = true
-debug = true
 
 # by overriding our dependencies' compilation settings, we can further optimize>
 # https://docs.rust-embedded.org/book/unsorted/speed-vs-size.html#optimizing-de>
