@@ -274,7 +274,6 @@ dependencies = [
  "serde_yaml",
  "time",
  "tokio",
- "tokio-util",
  "tower-http",
  "tracing",
  "tracing-subscriber",
