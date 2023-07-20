@@ -46,7 +46,9 @@ async fn main() -> anyhow::Result<()> {
     .allow_methods([Method::GET, Method::POST])
     .allow_origin(Any);
 
-  let router = route().layer(cors).with_state(state);
+  let router = route(&args.content_directory.join("documents/download"))
+    .layer(cors)
+    .with_state(state);
 
   let server = Server::bind(&args.listen_addr).serve(router.into_make_service());
 
