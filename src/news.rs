@@ -84,7 +84,16 @@ impl News {
         description: meta.description,
         keywords: meta.keywords,
         authors: meta.authors,
-        body: markdown::to_html(body),
+        body: markdown::to_html_with_options(
+          body,
+          &markdown::Options {
+            compile: markdown::CompileOptions {
+              allow_dangerous_html: true,
+              ..markdown::CompileOptions::gfm()
+            },
+            ..markdown::Options::gfm()
+          }
+        ).unwrap(),
       }));
     }
 
