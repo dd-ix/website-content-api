@@ -10,10 +10,14 @@ use crate::state::FoundationState;
 mod documents;
 mod news;
 
-pub(crate) fn route(document_content_path: &PathBuf) -> Router<FoundationState> {
+pub(crate) fn route(
+  news_content_path: &PathBuf,
+  document_content_path: &PathBuf,
+) -> Router<FoundationState> {
   Router::new()
     .route("/news/:lang", get(list_posts))
     .route("/news/:lang/:slug", get(find_post))
+    .nest_service("/news/assets", ServeDir::new(news_content_path))
     .route("/documents/:lang", get(list_documents))
     .nest_service("/documents/download", ServeDir::new(document_content_path))
 }
