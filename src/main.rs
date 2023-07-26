@@ -46,7 +46,10 @@ async fn main() -> anyhow::Result<()> {
     .allow_methods([Method::GET, Method::POST])
     .allow_origin(Any);
 
-  let router = route(&args.content_directory.join("documents/download"))
+  let router = route(
+    &args.content_directory.join("news/assets"),
+    &args.content_directory.join("documents/download"),
+  )
     .layer(cors)
     .with_state(state);
 

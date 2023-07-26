@@ -60,6 +60,10 @@ impl News {
 
     let mut dir = tokio::fs::read_dir(directory).await?;
     while let Some(entry) = dir.next_entry().await? {
+      if entry.file_type().await?.is_dir() {
+        continue;
+      }
+
       let path = entry.path();
       let content = tokio::fs::read_to_string(path.as_path()).await?;
       let content = content.trim_start();
