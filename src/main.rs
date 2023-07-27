@@ -53,8 +53,8 @@ async fn main() -> anyhow::Result<()> {
     &args.content_directory.join("news/assets"),
     &args.content_directory.join("documents/download"),
   )
-    .layer(cors)
-    .with_state(state);
+  .layer(cors)
+  .with_state(state);
 
   let server = Server::bind(&args.listen_addr).serve(router.into_make_service());
 

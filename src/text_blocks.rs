@@ -56,7 +56,8 @@ impl TextBlocks {
 }
 
 fn parse_file_name(file_name: &str) -> anyhow::Result<(Language, &str)> {
-  let (slug, lang) = file_name.rsplit_once('.')
+  let (slug, lang) = file_name
+    .rsplit_once('.')
     .ok_or_else(|| anyhow!("Filename has a invalid format {}", file_name))?;
 
   Ok((lang.try_into()?, slug))
