@@ -10,6 +10,7 @@ use crate::documents::Documents;
 use crate::news::News;
 use crate::routes::route;
 use crate::state::FoundationState;
+use crate::text_blocks::TextBlocks;
 
 mod args;
 mod documents;
@@ -17,6 +18,7 @@ mod lang;
 mod news;
 mod routes;
 mod state;
+mod text_blocks;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
@@ -39,6 +41,7 @@ async fn main() -> anyhow::Result<()> {
 
   let state = FoundationState {
     news: News::load(&args.content_directory.join("news")).await?,
+    text_blocks: TextBlocks::load(&args.content_directory.join("text_blocks")).await?,
     documents: Documents::load(&args.content_directory.join("documents")).await?,
   };
 
