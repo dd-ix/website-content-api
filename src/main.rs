@@ -41,10 +41,8 @@ async fn main() -> anyhow::Result<()> {
 
   let state = FoundationState {
     news: News::load(&args.content_directory.join("news")).await?,
-    text_blocks: TextBlocks::load(
-      &args.content_directory.join("text_blocks"),
-      args.listen_addr,
-    ).await?,
+    text_blocks: TextBlocks::load(&args.content_directory.join("text_blocks"), &args.base_url)
+      .await?,
     documents: Documents::load(&args.content_directory.join("documents")).await?,
   };
 

@@ -5,13 +5,13 @@ use std::sync::Arc;
 use anyhow::anyhow;
 use regex::{Captures, Regex, Replacer};
 use serde::Serialize;
+use url::{ParseError, Url};
 
 use crate::lang::Language;
 
 #[derive(Debug, Clone)]
 pub(crate) struct TextBlocks {
   blocks: Arc<Vec<Arc<TextBlock>>>,
-  foundation_listen_addr: SocketAddr,
 }
 
 #[derive(Serialize, Debug, Clone)]
@@ -22,7 +22,7 @@ pub(crate) struct TextBlock {
 }
 
 struct AddressReplacer {
-  foundation_listen_addr: SocketAddr,
+  base_url: Url,
 }
 
 impl Replacer for AddressReplacer {
@@ -30,15 +30,14 @@ impl Replacer for AddressReplacer {
     let file_name = caps.name("file").unwrap().as_str();
 
     dst.push_str(&*format!(
-      "src=\"http://{}/text-blocks/assets/{}\"",
-      self.foundation_listen_addr.to_string(),
-      file_name,
+      "src=\"{}\"",
+      self.base_url.join(file_name).unwrap().to_string(),
     ))
   }
 }
 
 impl TextBlocks {
-  pub(crate) async fn load(directory: &Path, foundation_listen_addr: SocketAddr) -> anyhow::Result<Self> {
+  pub(crate) async fn load(directory: &Path, base_url: &Url) -> anyhow::Result<Self> {
     let mut blocks = Vec::new();
 
     let mut dir = tokio::fs::read_dir(directory).await?;
@@ -56,14 +55,12 @@ impl TextBlocks {
       blocks.push(Arc::new(TextBlock {
         slug: slug.to_string(),
         lang,
-        body: parse_markdown(&body, foundation_listen_addr)?,
+        body: parse_markdown(&body, base_url.join("/text-blocks/assets/")?)?,
       }));
     }
 
-
     Ok(TextBlocks {
       blocks: Arc::new(blocks),
-      foundation_listen_addr,
     })
   }
 
@@ -84,13 +81,10 @@ fn parse_file_name(file_name: &str) -> anyhow::Result<(Language, &str)> {
   Ok((lang.try_into()?, slug))
 }
 
-fn parse_markdown(markdown_body: &str, foundation_listen_addr: SocketAddr) -> anyhow::Result<String> {
+fn parse_markdown(markdown_body: &str, base_url: Url) -> anyhow::Result<String> {
   let html = markdown::to_html(markdown_body);
-  let pattern = Regex::new("src=\"(?P<file>[^/]+)\"").unwrap();
-  let modified_html = pattern.replace_all(&html, AddressReplacer {
-    foundation_listen_addr,
-  });
-
+  let pattern = Regex::new("src=\"(?P<file>[^\"]+)\"").unwrap();
+  let modified_html = pattern.replace_all(&html, AddressReplacer { base_url });
 
   Ok(modified_html.to_string())
 }

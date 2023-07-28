@@ -2,6 +2,7 @@ use std::net::SocketAddr;
 use std::path::PathBuf;
 
 use clap::Parser;
+use url::Url;
 
 #[derive(Parser)]
 pub(crate) struct Args {
@@ -20,4 +21,12 @@ pub(crate) struct Args {
     default_value = "content"
   )]
   pub(crate) content_directory: PathBuf,
+
+  #[clap(
+    short,
+    long,
+    env = "FOUNDATION_BASE_URL",
+    default_value = "http://localhost:8080/"
+  )]
+  pub(crate) base_url: Url,
 }
