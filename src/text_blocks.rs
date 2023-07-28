@@ -1,18 +1,17 @@
+use std::net::SocketAddr;
 use std::path::Path;
 use std::sync::Arc;
 
 use anyhow::anyhow;
-use clap::builder::Str;
 use regex::{Captures, Regex, Replacer};
 use serde::Serialize;
-use tl::Node::Tag;
-use tl::ParserOptions;
 
 use crate::lang::Language;
 
 #[derive(Debug, Clone)]
 pub(crate) struct TextBlocks {
   blocks: Arc<Vec<Arc<TextBlock>>>,
+  foundation_listen_addr: SocketAddr,
 }
 
 #[derive(Serialize, Debug, Clone)]
@@ -22,18 +21,24 @@ pub(crate) struct TextBlock {
   body: String,
 }
 
-struct FuncReplacer {}
+struct AddressReplacer {
+  foundation_listen_addr: SocketAddr,
+}
 
-impl Replacer for FuncReplacer {
+impl Replacer for AddressReplacer {
   fn replace_append(&mut self, caps: &Captures<'_>, dst: &mut String) {
-    dst.push_str("src=\"http://localhost:8080/text-blocks/assets/");
-    dst.push_str(caps.name("link").unwrap().as_str());
-    dst.push_str("\"")
+    let file_name = caps.name("file").unwrap().as_str();
+
+    dst.push_str(&*format!(
+      "src=\"http://{}/text-blocks/assets/{}\"",
+      self.foundation_listen_addr.to_string(),
+      file_name,
+    ))
   }
 }
 
 impl TextBlocks {
-  pub(crate) async fn load(directory: &Path) -> anyhow::Result<Self> {
+  pub(crate) async fn load(directory: &Path, foundation_listen_addr: SocketAddr) -> anyhow::Result<Self> {
     let mut blocks = Vec::new();
 
     let mut dir = tokio::fs::read_dir(directory).await?;
@@ -51,12 +56,14 @@ impl TextBlocks {
       blocks.push(Arc::new(TextBlock {
         slug: slug.to_string(),
         lang,
-        body: parse_markdown(&body)?,
+        body: parse_markdown(&body, foundation_listen_addr)?,
       }));
     }
 
+
     Ok(TextBlocks {
       blocks: Arc::new(blocks),
+      foundation_listen_addr,
     })
   }
 
@@ -77,10 +84,12 @@ fn parse_file_name(file_name: &str) -> anyhow::Result<(Language, &str)> {
   Ok((lang.try_into()?, slug))
 }
 
-fn parse_markdown(markdown_body: &str) -> anyhow::Result<String> {
+fn parse_markdown(markdown_body: &str, foundation_listen_addr: SocketAddr) -> anyhow::Result<String> {
   let html = markdown::to_html(markdown_body);
-  let pattern = Regex::new("src=\"(?P<link>.+)\"").unwrap();
-  let modified_html = pattern.replace_all(&html, FuncReplacer{});
+  let pattern = Regex::new("src=\"(?P<file>.+)\"").unwrap();
+  let modified_html = pattern.replace_all(&html, AddressReplacer {
+    foundation_listen_addr,
+  });
 
 
   Ok(modified_html.to_string())
