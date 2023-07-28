@@ -43,7 +43,7 @@ in
     url = mkOption {
       type = types.str;
       description = ''under which domain foundation serves its content'';
-    }
+    };
   };
 
   config = lib.mkIf cfg.enable {
