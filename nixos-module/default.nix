@@ -40,6 +40,10 @@ in
       default = "info";
       description = ''log level of the application'';
     };
+    url = mkOption {
+      type = types.str;
+      description = ''under which domain foundation serves its content'';
+    }
   };
 
   config = lib.mkIf cfg.enable {
@@ -58,6 +62,7 @@ in
             "RUST_BACKTRACE" = if (cfg.logLevel == "info") then "0" else "1";
             "FOUNDATION_LISTEN_ADDR" = "${cfg.http.host}:${toString cfg.http.port}";
             "FOUNDATION_CONTENT_DIRECTORY" = "${pkgs.website-content}/content/";
+            "FOUNDATION_BASE_URL" = "${cfg.url}";
           };
 
           serviceConfig = {
