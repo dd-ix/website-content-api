@@ -86,7 +86,7 @@ fn parse_file_name(file_name: &str) -> anyhow::Result<(Language, &str)> {
 
 fn parse_markdown(markdown_body: &str, foundation_listen_addr: SocketAddr) -> anyhow::Result<String> {
   let html = markdown::to_html(markdown_body);
-  let pattern = Regex::new("src=\"(?P<file>.+)\"").unwrap();
+  let pattern = Regex::new("src=\"(?P<file>[^/]+)\"").unwrap();
   let modified_html = pattern.replace_all(&html, AddressReplacer {
     foundation_listen_addr,
   });
