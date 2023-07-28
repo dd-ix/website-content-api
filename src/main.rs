@@ -51,6 +51,7 @@ async fn main() -> anyhow::Result<()> {
 
   let router = route(
     &args.content_directory.join("news/assets"),
+    &args.content_directory.join("text_blocks/assets"),
     &args.content_directory.join("documents/download"),
   )
   .layer(cors)
