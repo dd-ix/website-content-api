@@ -41,7 +41,8 @@ async fn main() -> anyhow::Result<()> {
 
   let state = FoundationState {
     news: News::load(&args.content_directory.join("news")).await?,
-    text_blocks: TextBlocks::load(&args.content_directory.join("text_blocks")).await?,
+    text_blocks: TextBlocks::load(&args.content_directory.join("text_blocks"), &args.base_url)
+      .await?,
     documents: Documents::load(&args.content_directory.join("documents")).await?,
   };
 
@@ -51,6 +52,7 @@ async fn main() -> anyhow::Result<()> {
 
   let router = route(
     &args.content_directory.join("news/assets"),
+    &args.content_directory.join("text_blocks/assets"),
     &args.content_directory.join("documents/download"),
   )
   .layer(cors)

@@ -1,8 +1,11 @@
+use std::net::SocketAddr;
 use std::path::Path;
 use std::sync::Arc;
 
 use anyhow::anyhow;
+use regex::{Captures, Regex, Replacer};
 use serde::Serialize;
+use url::{ParseError, Url};
 
 use crate::lang::Language;
 
@@ -18,8 +21,23 @@ pub(crate) struct TextBlock {
   body: String,
 }
 
+struct AddressReplacer {
+  base_url: Url,
+}
+
+impl Replacer for AddressReplacer {
+  fn replace_append(&mut self, caps: &Captures<'_>, dst: &mut String) {
+    let file_name = caps.name("file").unwrap().as_str();
+
+    dst.push_str(&*format!(
+      "src=\"{}\"",
+      self.base_url.join(file_name).unwrap().to_string(),
+    ))
+  }
+}
+
 impl TextBlocks {
-  pub(crate) async fn load(directory: &Path) -> anyhow::Result<Self> {
+  pub(crate) async fn load(directory: &Path, base_url: &Url) -> anyhow::Result<Self> {
     let mut blocks = Vec::new();
 
     let mut dir = tokio::fs::read_dir(directory).await?;
@@ -37,7 +55,7 @@ impl TextBlocks {
       blocks.push(Arc::new(TextBlock {
         slug: slug.to_string(),
         lang,
-        body: markdown::to_html(&body),
+        body: parse_markdown(&body, base_url.join("/text-blocks/assets/")?)?,
       }));
     }
 
@@ -61,4 +79,12 @@ fn parse_file_name(file_name: &str) -> anyhow::Result<(Language, &str)> {
     .ok_or_else(|| anyhow!("Filename has a invalid format {}", file_name))?;
 
   Ok((lang.try_into()?, slug))
+}
+
+fn parse_markdown(markdown_body: &str, base_url: Url) -> anyhow::Result<String> {
+  let html = markdown::to_html(markdown_body);
+  let pattern = Regex::new("src=\"(?P<file>[^\"]+)\"").unwrap();
+  let modified_html = pattern.replace_all(&html, AddressReplacer { base_url });
+
+  Ok(modified_html.to_string())
 }
