@@ -2,7 +2,11 @@ use std::path::Path;
 use std::sync::Arc;
 
 use anyhow::anyhow;
+use clap::builder::Str;
+use regex::{Captures, Regex, Replacer};
 use serde::Serialize;
+use tl::Node::Tag;
+use tl::ParserOptions;
 
 use crate::lang::Language;
 
@@ -16,6 +20,16 @@ pub(crate) struct TextBlock {
   slug: String,
   lang: Language,
   body: String,
+}
+
+struct FuncReplacer {}
+
+impl Replacer for FuncReplacer {
+  fn replace_append(&mut self, caps: &Captures<'_>, dst: &mut String) {
+    dst.push_str("src=\"http://localhost:8080/text-blocks/assets/");
+    dst.push_str(caps.name("link").unwrap().as_str());
+    dst.push_str("\"")
+  }
 }
 
 impl TextBlocks {
@@ -37,7 +51,7 @@ impl TextBlocks {
       blocks.push(Arc::new(TextBlock {
         slug: slug.to_string(),
         lang,
-        body: markdown::to_html(&body),
+        body: parse_markdown(&body)?,
       }));
     }
 
@@ -61,4 +75,13 @@ fn parse_file_name(file_name: &str) -> anyhow::Result<(Language, &str)> {
     .ok_or_else(|| anyhow!("Filename has a invalid format {}", file_name))?;
 
   Ok((lang.try_into()?, slug))
+}
+
+fn parse_markdown(markdown_body: &str) -> anyhow::Result<String> {
+  let html = markdown::to_html(markdown_body);
+  let pattern = Regex::new("src=\"(?P<link>.+)\"").unwrap();
+  let modified_html = pattern.replace_all(&html, FuncReplacer{});
+
+
+  Ok(modified_html.to_string())
 }

@@ -13,6 +13,7 @@ time = { version = "0.3", default-features = false, features = ["serde"] }
 serde_yaml = { version = "0.9", default-features = false }
 clap = { version = "4.3", features = ["derive", "env"] }
 markdown = "1.0.0-alpha.9"
+regex = "1.8.4"
 tracing = "0.1"
 anyhow = "1.0"
 
