@@ -25,6 +25,7 @@ pub(crate) struct WrittenPostMeta {
   description: String,
   keywords: Vec<String>,
   authors: Vec<String>,
+  image: Option<String>,
 }
 
 #[derive(Serialize, Debug, Clone)]
@@ -38,6 +39,7 @@ pub(crate) struct Post {
   description: String,
   keywords: Vec<String>,
   authors: Vec<String>,
+  image: Option<String>,
   body: String,
 }
 
@@ -52,6 +54,7 @@ pub(crate) struct SmallPost {
   description: String,
   keywords: Vec<String>,
   authors: Vec<String>,
+  image: Option<String>,
 }
 
 impl News {
@@ -84,6 +87,7 @@ impl News {
         description: meta.description,
         keywords: meta.keywords,
         authors: meta.authors,
+        image: meta.image,
         body: markdown::to_html(body),
       }));
     }
@@ -103,6 +107,7 @@ impl News {
           description: post.description.clone(),
           keywords: post.keywords.clone(),
           authors: post.authors.clone(),
+          image: post.image.clone(),
         })
       })
       .collect();
