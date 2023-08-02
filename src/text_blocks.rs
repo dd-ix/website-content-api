@@ -1,11 +1,10 @@
-use std::net::SocketAddr;
 use std::path::Path;
 use std::sync::Arc;
 
 use anyhow::anyhow;
 use regex::{Captures, Regex, Replacer};
 use serde::Serialize;
-use url::{ParseError, Url};
+use url::Url;
 
 use crate::lang::Language;
 
@@ -29,9 +28,9 @@ impl Replacer for AddressReplacer {
   fn replace_append(&mut self, caps: &Captures<'_>, dst: &mut String) {
     let file_name = caps.name("file").unwrap().as_str();
 
-    dst.push_str(&*format!(
+    dst.push_str(&format!(
       "src=\"{}\"",
-      self.base_url.join(file_name).unwrap().to_string(),
+      self.base_url.join(file_name).unwrap(),
     ))
   }
 }

@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-use std::path::{Path, PathBuf};
+use std::path::Path;
 use std::sync::Arc;
 
 use serde::{Deserialize, Serialize};
@@ -15,17 +15,14 @@ pub(crate) struct Document {
 
 #[derive(Clone)]
 pub(crate) struct Documents {
-  base_path: PathBuf,
   documents: Arc<HashMap<Language, Arc<Vec<Document>>>>,
 }
 
 impl Documents {
   pub(crate) async fn load(path: &Path) -> anyhow::Result<Self> {
-    let base_path = path.into();
     let string = tokio::fs::read_to_string(path.join("documents.yaml")).await?;
     let documents = serde_yaml::from_str(&string)?;
     Ok(Self {
-      base_path,
       documents,
     })
   }
