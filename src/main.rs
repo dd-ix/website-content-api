@@ -8,8 +8,9 @@ use tracing_subscriber::FmtSubscriber;
 use crate::args::Args;
 use crate::documents::Documents;
 use crate::news::News;
-use crate::routes::route;
+use crate::routes::{route, ContentPaths};
 use crate::state::FoundationState;
+use crate::team::Team;
 use crate::text_blocks::TextBlocks;
 
 mod args;
@@ -18,6 +19,7 @@ mod lang;
 mod news;
 mod routes;
 mod state;
+mod team;
 mod text_blocks;
 
 #[tokio::main]
@@ -44,17 +46,19 @@ async fn main() -> anyhow::Result<()> {
     text_blocks: TextBlocks::load(&args.content_directory.join("text_blocks"), &args.base_url)
       .await?,
     documents: Documents::load(&args.content_directory.join("documents")).await?,
+    team: Team::load(&args.content_directory.join("team")).await?,
   };
 
   let cors = CorsLayer::new()
     .allow_methods([Method::GET, Method::POST])
     .allow_origin(Any);
 
-  let router = route(
-    &args.content_directory.join("news/assets"),
-    &args.content_directory.join("text_blocks/assets"),
-    &args.content_directory.join("documents/download"),
-  )
+  let router = route(&ContentPaths {
+    news: args.content_directory.join("news/assets"),
+    text_blocks: args.content_directory.join("text_blocks/assets"),
+    document: args.content_directory.join("documents/download"),
+    team: args.content_directory.join("team/assets"),
+  })
   .layer(cors)
   .with_state(state);
 
