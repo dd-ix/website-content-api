@@ -36,6 +36,6 @@ pub(crate) fn route(content_paths: &ContentPaths) -> Router<FoundationState> {
       "/documents/download",
       ServeDir::new(&content_paths.document),
     )
-    .route("/team", get(get_team))
+    .route("/team/:lang", get(get_team))
     .nest_service("/team/assets", ServeDir::new(&content_paths.team))
 }
