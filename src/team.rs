@@ -28,7 +28,7 @@ pub(crate) struct Team {
 impl Team {
   pub(crate) async fn load(path: &Path) -> anyhow::Result<Self> {
     let base_path: PathBuf = path.into();
-    let serialized_teams = tokio::fs::read_to_string(base_path.join("teams.yaml")).await?;
+    let serialized_teams = tokio::fs::read_to_string(base_path.join("team.yaml")).await?;
     let team_members = serde_yaml::from_str(&serialized_teams)?;
     Ok(Self {
       members: team_members,
