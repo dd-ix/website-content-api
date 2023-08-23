@@ -11,6 +11,7 @@ pub(crate) struct Document {
   name: String,
   description: String,
   filename: String,
+  image: String,
 }
 
 #[derive(Clone)]
@@ -22,9 +23,7 @@ impl Documents {
   pub(crate) async fn load(path: &Path) -> anyhow::Result<Self> {
     let string = tokio::fs::read_to_string(path.join("documents.yaml")).await?;
     let documents = serde_yaml::from_str(&string)?;
-    Ok(Self {
-      documents,
-    })
+    Ok(Self { documents })
   }
 
   pub(crate) fn documents(&self, lang: Language) -> Option<Arc<Vec<Document>>> {
