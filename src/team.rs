@@ -15,6 +15,7 @@ pub(crate) struct Socials {
 #[derive(Serialize, Deserialize)]
 pub(crate) struct TeamMember<T> {
   pub name: String,
+  pub nick: Option<String>,
   pub description: T,
   pub image: String,
   pub socials: Socials,
@@ -41,6 +42,7 @@ impl Team {
       .iter()
       .map(|member| TeamMember {
         name: member.name.clone(),
+        nick: member.nick.clone(),
         description: member.description.get(lang).unwrap().clone(),
         image: member.image.clone(),
         socials: member.socials.clone(),
