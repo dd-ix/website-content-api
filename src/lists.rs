@@ -82,7 +82,7 @@ impl MailingLists {
     url: &Url,
     user: &str,
     password_file: &PathBuf,
-    lists: &[i32],
+    lists: &str,
   ) -> anyhow::Result<MailingLists> {
     let password = std::fs::read_to_string(password_file)?;
 
@@ -90,7 +90,7 @@ impl MailingLists {
       url: url.join("/api/subscribers")?,
       user: user.to_owned(),
       password,
-      lists: lists.to_owned(),
+      lists: serde_json::from_str(lists)?,
     })
   }
 
