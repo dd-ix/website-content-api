@@ -1,9 +1,9 @@
 use email_address::EmailAddress;
-use log::error;
 use serde::{Deserialize, Serialize};
 use std::error::Error;
 use std::fmt;
 use std::path::PathBuf;
+use tracing::error;
 use url::Url;
 
 use reqwest::Client;
@@ -84,13 +84,10 @@ impl MailingLists {
     password_file: &PathBuf,
     lists: &[i32],
   ) -> anyhow::Result<MailingLists> {
-    let mut copied_url = url.clone();
-    copied_url.set_path("/api/subscribers");
-
     let password = std::fs::read_to_string(password_file)?;
 
     Ok(MailingLists {
-      url: copied_url,
+      url: url.join("/api/subscribers")?,
       user: user.to_owned(),
       password,
       lists: lists.to_owned(),

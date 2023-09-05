@@ -1,7 +1,7 @@
 use axum::extract::{Path, State};
 use axum::http::StatusCode;
 use axum::Json;
-use log::error;
+use tracing::error;
 
 use crate::lists::{MailingListsError, Subscriber};
 use crate::state::FoundationState;
