@@ -99,7 +99,7 @@ in
             "FOUNDATION_LISTEN_ADDR" = "${cfg.http.host}:${toString cfg.http.port}";
             "FOUNDATION_CONTENT_DIRECTORY" = "${pkgs.website-content}/content/";
             "FOUNDATION_BASE_URL" = "${cfg.url}";
-            "FOUNDATION_LISTMONK_URL" = "${cfg.listmonk.host}:${toString cfg.listmonk.url}";
+            "FOUNDATION_LISTMONK_URL" = "${cfg.listmonk.host}:${toString cfg.listmonk.port}";
             "FOUNDATION_LISTMONK_USER" = "${cfg.listmonk.user}";
             "FOUNDATION_LISTMONK_PASSWORD_FILE" = "${cfg.listmonk.passwordFile}";
             "FOUNDATION_LISTMONK_LISTS" = "${builtins.toJSON cfg.listmonk.allowed_lists}";
