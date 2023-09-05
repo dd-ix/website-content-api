@@ -48,8 +48,8 @@
       };
 
       nixosModules = rec {
-        default = foundation;
         foundation = import ./nixos-module;
+        default = foundation;
       };
 
       hydraJobs =

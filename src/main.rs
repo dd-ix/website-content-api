@@ -7,6 +7,7 @@ use tracing_subscriber::FmtSubscriber;
 
 use crate::args::Args;
 use crate::documents::Documents;
+use crate::lists::MailingLists;
 use crate::news::News;
 use crate::routes::{route, ContentPaths};
 use crate::state::FoundationState;
@@ -16,6 +17,7 @@ use crate::text_blocks::TextBlocks;
 mod args;
 mod documents;
 mod lang;
+mod lists;
 mod news;
 mod routes;
 mod state;
@@ -47,6 +49,13 @@ async fn main() -> anyhow::Result<()> {
       .await?,
     documents: Documents::load(&args.content_directory.join("documents")).await?,
     team: Team::load(&args.content_directory.join("team")).await?,
+    lists: MailingLists::load(
+      &args.listmonk_url,
+      &args.listmonk_user,
+      &args.listmonk_password_file,
+      &args.listmonk_lists,
+    )
+    .await?,
   };
 
   let cors = CorsLayer::new()
