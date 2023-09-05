@@ -1,4 +1,4 @@
-{ naersk, src, lib, pkg-config}:
+{ naersk, src, lib, pkg-config, openssl }:
 
 naersk.buildPackage {
   pname = "foundation";
@@ -9,7 +9,7 @@ naersk.buildPackage {
   cargoSha256 = lib.fakeSha256;
 
   nativeBuildInputs = [ pkg-config ];
-  buildInputs = [ ];
+  buildInputs = [ openssl ];
 
   meta = {
     description = "Foundation is a server which serves content website";

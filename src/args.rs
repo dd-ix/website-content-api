@@ -29,4 +29,36 @@ pub(crate) struct Args {
     default_value = "http://localhost:8080/"
   )]
   pub(crate) base_url: Url,
+
+  #[clap(
+    short,
+    long,
+    env = "FOUNDATION_LISTMONK_URL",
+    default_value = "http://localhost:8090/"
+  )]
+  pub(crate) listmonk_url: Url,
+
+  #[clap(
+    short,
+    long,
+    env = "FOUNDATION_LISTMONK_USER",
+    default_value = "listmonk"
+  )]
+  pub(crate) listmonk_user: String,
+
+  #[clap(
+    short,
+    long,
+    env = "FOUNDATION_LISTMONK_PASSWORD_FILE",
+    default_value = "listmonk"
+  )]
+  pub(crate) listmonk_password_file: PathBuf,
+
+  #[clap(
+    short,
+    long,
+    env = "FOUNDATION_LISTMONK_LISTS",
+    default_value = "listmonk"
+  )]
+  pub(crate) listmonk_lists: Vec<i32>,
 }
