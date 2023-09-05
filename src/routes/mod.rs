@@ -1,4 +1,4 @@
-use axum::routing::get;
+use axum::routing::{get, post};
 use axum::Router;
 use std::path::PathBuf;
 use tower_http::services::ServeDir;

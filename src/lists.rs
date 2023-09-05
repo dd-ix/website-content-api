@@ -65,13 +65,13 @@ impl Subscriber {
 }
 
 impl ListmonkCreateSubscriber {
-  fn load(subscriber: Subscriber, lists: Vec<i32>) -> ListmonkCreateSubscriber {
+  fn load(subscriber: Subscriber, desired_list: i32) -> ListmonkCreateSubscriber {
     ListmonkCreateSubscriber {
       email: subscriber.email,
       name: subscriber.name,
       status: "enabled".to_string(),
       attribs: serde_json::value::Value::Null,
-      lists,
+      lists: vec![desired_list],
       preconfirm_subscriptions: true,
     }
   }
@@ -109,7 +109,7 @@ impl MailingLists {
       .post(self.url.clone())
       .json(&ListmonkCreateSubscriber::load(
         new_subscriber,
-        self.lists.clone(),
+        desired_list,
       ))
       .basic_auth(self.user.clone(), Some(self.password.clone()))
       .send()
