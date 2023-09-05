@@ -102,7 +102,7 @@ in
             "FOUNDATION_LISTMONK_URL" = "${cfg.listmonk.host}:${toString cfg.listmonk.url}";
             "FOUNDATION_LISTMONK_USER" = "${cfg.listmonk.user}";
             "FOUNDATION_LISTMONK_PASSWORD_FILE" = "${cfg.listmonk.passwordFile}";
-            "FOUNDATION_LISTMONK_LISTS" = "${builtins.toJson cfg.listmonk.allowed_lists}";
+            "FOUNDATION_LISTMONK_LISTS" = "${builtins.toJSON cfg.listmonk.allowed_lists}";
           };
 
           serviceConfig = {
