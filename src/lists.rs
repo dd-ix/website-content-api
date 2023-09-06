@@ -33,6 +33,32 @@ pub(crate) struct ListmonkCreateSubscriber {
   preconfirm_subscriptions: bool,
 }
 
+#[derive(Debug, Clone, Deserialize)]
+pub(crate) struct ListmonkUser {
+  id: i32,
+  /*created_at: String,
+  updated_at: String,
+  uuid: String,
+  email: String,
+  name: String,
+  attribs: serde_json::value::Value,
+  status: String,
+  lists: Vec<i32>*/
+}
+
+#[derive(Debug, Clone, Deserialize)]
+pub(crate) struct ListmonkUserCreateResponse {
+  data: ListmonkUser,
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub(crate) struct ListmonkAddSubscribers {
+  ids: Vec<i32>,
+  action: String,
+  target_list_ids: Vec<i32>,
+  status: String,
+}
+
 #[derive(Debug, Clone)]
 pub enum MailingListsError {
   InvalidMailingListId,
@@ -65,14 +91,25 @@ impl Subscriber {
 }
 
 impl ListmonkCreateSubscriber {
-  fn load(subscriber: Subscriber, desired_list: i32) -> ListmonkCreateSubscriber {
+  fn load(subscriber: &Subscriber) -> ListmonkCreateSubscriber {
     ListmonkCreateSubscriber {
-      email: subscriber.email,
-      name: subscriber.name,
+      email: subscriber.email.clone(),
+      name: subscriber.name.clone(),
       status: "enabled".to_string(),
       attribs: serde_json::value::Value::Null,
-      lists: vec![desired_list],
+      lists: vec![],
       preconfirm_subscriptions: true,
+    }
+  }
+}
+
+impl ListmonkAddSubscribers {
+  fn load(subscriber: i32, desired_list: i32) -> ListmonkAddSubscribers {
+    ListmonkAddSubscribers {
+      ids: vec![subscriber],
+      action: "add".to_string(),
+      target_list_ids: vec![desired_list],
+      status: "confirmed".to_string(),
     }
   }
 }
@@ -87,7 +124,7 @@ impl MailingLists {
     let password = std::fs::read_to_string(password_file)?;
 
     Ok(MailingLists {
-      url: url.join("/api/subscribers")?,
+      url: url.clone(),
       user: user.to_owned(),
       password,
       lists: serde_json::from_str(lists)?,
@@ -105,10 +142,45 @@ impl MailingLists {
 
     let client = Client::new();
 
-    let response = client
-      .post(self.url.clone())
-      .json(&ListmonkCreateSubscriber::load(
-        new_subscriber,
+    let response_create = client
+      .post(
+        self
+          .url
+          .clone()
+          .join("/api/subscribers")
+          .expect("invalid url"),
+      )
+      .json(&ListmonkCreateSubscriber::load(&new_subscriber))
+      .basic_auth(self.user.clone(), Some(self.password.clone()))
+      .send()
+      .await
+      .map_err(|e| {
+        error!("reqwest error while to sending to listmonk {:?}", e);
+        MailingListsError::RequestError
+      })?;
+
+    if response_create.status() != reqwest::StatusCode::OK {
+      return Err(MailingListsError::ListmonkError);
+    }
+
+    let json_body: ListmonkUserCreateResponse = match response_create.json().await {
+      Ok(data) => data,
+      Err(e) => {
+        error!("invalid response {:?}", e);
+        return Err(MailingListsError::ListmonkError);
+      }
+    };
+
+    let mailing_list_add = client
+      .put(
+        self
+          .url
+          .clone()
+          .join("/api/subscribers/lists")
+          .expect("invalid url"),
+      )
+      .json(&ListmonkAddSubscribers::load(
+        json_body.data.id,
         desired_list,
       ))
       .basic_auth(self.user.clone(), Some(self.password.clone()))
@@ -119,7 +191,7 @@ impl MailingLists {
         MailingListsError::RequestError
       })?;
 
-    if response.status() != reqwest::StatusCode::OK {
+    if mailing_list_add.status() != reqwest::StatusCode::OK {
       Err(MailingListsError::ListmonkError)
     } else {
       Ok(())
