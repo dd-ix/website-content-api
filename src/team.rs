@@ -10,7 +10,7 @@ pub(crate) struct Socials {
   pub email: Option<String>,
   pub mastodon: Option<String>,
   pub website: Option<String>,
-  pub linkedin: Option<String>
+  pub linkedin: Option<String>,
 }
 
 #[derive(Serialize, Deserialize)]
