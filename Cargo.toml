@@ -12,7 +12,7 @@ serde = { version = "1.0", default-features = false, features = ["derive", "rc"]
 time = { version = "0.3", default-features = false, features = ["serde"] }
 serde_yaml = { version = "0.9", default-features = false }
 serde_json = { version = "1.0" }
-clap = { version = "4.3", features = ["derive", "env"] }
+clap = { version = "4.2", features = ["derive", "env"] }
 url = { version = "2.4", default-features = false }
 markdown = "1.0.0-alpha.11"
 tracing = "0.1"
