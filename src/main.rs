@@ -1,3 +1,4 @@
+use axum::http::header::CONTENT_TYPE;
 use axum::http::Method;
 use axum::Server;
 use clap::Parser;
@@ -9,7 +10,7 @@ use crate::args::Args;
 use crate::documents::Documents;
 use crate::lists::MailingLists;
 use crate::news::News;
-use crate::routes::{route, ContentPaths};
+use crate::routes::{ContentPaths, route};
 use crate::state::FoundationState;
 use crate::team::Team;
 use crate::text_blocks::TextBlocks;
@@ -55,11 +56,12 @@ async fn main() -> anyhow::Result<()> {
       &args.listmonk_password_file,
       &args.listmonk_lists,
     )
-    .await?,
+      .await?,
   };
 
   let cors = CorsLayer::new()
     .allow_methods([Method::GET, Method::POST])
+    .allow_headers([CONTENT_TYPE])
     .allow_origin(Any);
 
   let router = route(&ContentPaths {
@@ -68,8 +70,8 @@ async fn main() -> anyhow::Result<()> {
     document: args.content_directory.join("documents/download"),
     team: args.content_directory.join("team/assets"),
   })
-  .layer(cors)
-  .with_state(state);
+    .layer(cors)
+    .with_state(state);
 
   let server = Server::bind(&args.listen_addr).serve(router.into_make_service());
 
