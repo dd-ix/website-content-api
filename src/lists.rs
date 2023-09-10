@@ -93,7 +93,7 @@ impl ListmonkCreateSubscriber {
   fn load(subscriber: &Subscriber) -> ListmonkCreateSubscriber {
     ListmonkCreateSubscriber {
       email: subscriber.email.clone(),
-      name: "".to_string(),
+      name: "NewsSubscriber".to_string(),
       status: "enabled".to_string(),
       attribs: serde_json::value::Value::Null,
       lists: vec![],
