@@ -19,7 +19,6 @@ pub(crate) struct MailingLists {
 
 #[derive(Debug, Clone, Deserialize)]
 pub(crate) struct Subscriber {
-  name: String,
   email: String,
 }
 
@@ -94,7 +93,7 @@ impl ListmonkCreateSubscriber {
   fn load(subscriber: &Subscriber) -> ListmonkCreateSubscriber {
     ListmonkCreateSubscriber {
       email: subscriber.email.clone(),
-      name: subscriber.name.clone(),
+      name: "".to_string(),
       status: "enabled".to_string(),
       attribs: serde_json::value::Value::Null,
       lists: vec![],
