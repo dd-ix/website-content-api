@@ -5,7 +5,7 @@ use tower_http::services::ServeDir;
 
 use crate::routes::documents::list_documents;
 use crate::routes::lists::add_subscriber;
-use crate::routes::news::{find_post, list_posts};
+use crate::routes::news::{find_post, list_posts, search_by_keywords};
 use crate::routes::team::get_team;
 use crate::routes::text_blocks::find_text_block;
 use crate::state::FoundationState;
@@ -26,6 +26,7 @@ pub(crate) struct ContentPaths {
 pub(crate) fn route(content_paths: &ContentPaths) -> Router<FoundationState> {
   Router::new()
     .route("/news/:lang", get(list_posts))
+    .route("/news/:lang/search", get(search_by_keywords))
     .route("/news/:lang/:slug", get(find_post))
     .route("/text-blocks/:lang/:slug", get(find_text_block))
     .nest_service(

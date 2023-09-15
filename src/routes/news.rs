@@ -24,3 +24,11 @@ pub(crate) async fn find_post(
     .map(Json)
     .ok_or(StatusCode::NOT_FOUND)
 }
+
+pub(crate) async fn search_by_keywords(
+  State(state): State<FoundationState>,
+  Path(lang): Path<Language>,
+  Json(keywords): Json<Vec<String>>,
+) -> Json<Vec<Arc<SmallPost>>> {
+  Json(state.news.search_by_keywords(lang, &keywords))
+}
