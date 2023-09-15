@@ -4,6 +4,7 @@ use std::sync::Arc;
 use anyhow::anyhow;
 use serde::de::Error;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
+use std::collections::HashSet;
 use time::Date;
 
 use crate::lang::Language;
@@ -133,6 +134,26 @@ impl News {
       .iter()
       .find(|post| post.lang == lang && post.slug == slug)
       .cloned()
+  }
+
+  pub(crate) fn search_by_keywords(
+    &self,
+    lang: Language,
+    keywords: &Vec<String>,
+  ) -> Vec<Arc<SmallPost>> {
+    self
+      .small_posts
+      .iter()
+      .filter(|post| post.lang == lang)
+      .filter(|post| {
+        let unique_a = post.keywords.iter().collect::<HashSet<_>>();
+        let unique_b = keywords.iter().collect::<HashSet<_>>();
+
+        let result = unique_a.intersection(&unique_b).collect::<Vec<_>>();
+        !result.is_empty()
+      })
+      .cloned()
+      .collect()
   }
 }
 
