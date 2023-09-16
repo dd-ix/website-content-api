@@ -1,3 +1,4 @@
+use std::collections::HashSet;
 use std::sync::Arc;
 
 use axum::extract::{Path, Query, State};
@@ -50,4 +51,8 @@ pub(crate) async fn find_post(
     .find_post(lang, &slug)
     .map(Json)
     .ok_or(StatusCode::NOT_FOUND)
+}
+
+pub(crate) async fn find_keywords(State(state): State<FoundationState>) -> Json<HashSet<String>> {
+  Json(state.news.keywords())
 }

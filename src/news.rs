@@ -155,6 +155,14 @@ impl News {
       .cloned()
       .collect()
   }
+
+  pub(crate) fn keywords(&self) -> HashSet<String> {
+    self
+      .small_posts
+      .iter()
+      .flat_map(|post| post.keywords.clone())
+      .collect()
+  }
 }
 
 fn parse_file_name(file_name: &str) -> anyhow::Result<(u32, Language, &str)> {
