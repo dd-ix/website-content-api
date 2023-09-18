@@ -1,15 +1,15 @@
+use std::collections::HashSet;
 use std::path::Path;
 use std::sync::Arc;
 
 use anyhow::anyhow;
 use serde::de::Error;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
-use std::collections::HashSet;
 use time::Date;
 
 use crate::lang::Language;
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 struct MyDate(Date);
 
 #[derive(Debug, Clone)]
@@ -44,7 +44,7 @@ pub(crate) struct Post {
   body: String,
 }
 
-#[derive(Serialize, Debug, Clone)]
+#[derive(Serialize, Debug, Clone, PartialEq, Eq)]
 pub(crate) struct SmallPost {
   slug: String,
   lang: Language,
@@ -141,19 +141,48 @@ impl News {
     lang: Language,
     keywords: &Vec<String>,
   ) -> Vec<Arc<SmallPost>> {
-    self
+    let posts = self
       .small_posts
       .iter()
       .filter(|post| post.lang == lang)
-      .filter(|post| {
-        let unique_a = post.keywords.iter().collect::<HashSet<_>>();
-        let unique_b = keywords.iter().collect::<HashSet<_>>();
+      .collect::<Vec<_>>();
 
-        let result = unique_a.intersection(&unique_b).collect::<Vec<_>>();
-        !result.is_empty()
+    let keywords_set = keywords.iter().collect::<HashSet<_>>();
+
+    let mut or = posts
+      .iter()
+      .filter(|post| {
+        post
+          .keywords
+          .iter()
+          .collect::<HashSet<_>>()
+          .intersection(&keywords_set)
+          .next()
+          .is_some()
       })
       .cloned()
-      .collect()
+      .cloned()
+      .collect::<Vec<_>>();
+
+    let mut and = posts
+      .iter()
+      .filter(|post| {
+        !or.contains(post)
+          && post
+            .keywords
+            .iter()
+            .collect::<HashSet<_>>()
+            .intersection(&keywords_set)
+            .count()
+            == keywords.len()
+      })
+      .cloned()
+      .cloned()
+      .collect::<Vec<_>>();
+
+    or.append(&mut and);
+
+    or
   }
 
   pub(crate) fn keywords(&self) -> HashSet<String> {
