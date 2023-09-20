@@ -76,6 +76,10 @@ impl News {
 
       let meta: WrittenPostMeta = serde_yaml::from_str(meta)?;
       let file_name = path.file_name().unwrap().to_str().unwrap();
+      if file_name.starts_with("_") {
+        continue;
+      }
+
       let (idx, lang, slug) = parse_file_name(file_name)?;
 
       posts.push(Arc::new(Post {
