@@ -5,6 +5,18 @@ use std::path::{Path, PathBuf};
 use std::sync::Arc;
 
 #[derive(Serialize, Deserialize, Clone)]
+pub(crate) enum WorkingGroup {
+  Technical,
+  Network,
+  Service,
+  DevOps,
+  Events,
+  FinancesAndLaw,
+  ClientsAndSponsors,
+  PublicRelations,
+}
+
+#[derive(Serialize, Deserialize, Clone)]
 pub(crate) struct Socials {
   pub github: Option<String>,
   pub email: Option<String>,
@@ -18,6 +30,7 @@ pub(crate) struct TeamMember<T> {
   pub name: String,
   pub nick: Option<String>,
   pub vorstand: bool,
+  pub teams: Vec<WorkingGroup>,
   pub ripe_handle: Option<String>,
   pub description: T,
   pub image: String,
@@ -47,6 +60,7 @@ impl Team {
         name: member.name.clone(),
         nick: member.nick.clone(),
         vorstand: member.vorstand.clone(),
+        teams: member.teams.clone(),
         ripe_handle: member.ripe_handle.clone(),
         description: member.description.get(lang).unwrap().clone(),
         image: member.image.clone(),
