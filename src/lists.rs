@@ -108,7 +108,7 @@ impl ListmonkAddSubscribers {
       ids: vec![subscriber],
       action: "add".to_string(),
       target_list_ids: vec![desired_list],
-      status: "confirmed".to_string(),
+      status: "unconfirmed".to_string(),
     }
   }
 }
