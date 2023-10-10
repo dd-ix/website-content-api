@@ -6,12 +6,12 @@ use std::sync::Arc;
 
 #[derive(Serialize, Deserialize, Clone)]
 pub(crate) enum WorkingGroup {
-  Technical,
+  Tech,
   Network,
   Services,
   DevOps,
   Events,
-  FinancesAndLaw,
+  FinanceAndLegal,
   ClientsAndSponsors,
   PublicRelations,
 }
@@ -30,7 +30,7 @@ pub(crate) struct TeamMember<T> {
   pub name: String,
   pub nick: Option<String>,
   pub vorstand: bool,
-  pub teams: Vec<WorkingGroup>,
+  pub working_groups: Vec<WorkingGroup>,
   pub ripe_handle: Option<String>,
   pub description: T,
   pub image: String,
@@ -60,7 +60,7 @@ impl Team {
         name: member.name.clone(),
         nick: member.nick.clone(),
         vorstand: member.vorstand.clone(),
-        teams: member.teams.clone(),
+        working_groups: member.working_groups.clone(),
         ripe_handle: member.ripe_handle.clone(),
         description: member.description.get(lang).unwrap().clone(),
         image: member.image.clone(),
