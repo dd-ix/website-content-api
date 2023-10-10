@@ -8,7 +8,7 @@ use std::sync::Arc;
 pub(crate) enum WorkingGroup {
   Technical,
   Network,
-  Service,
+  Services,
   DevOps,
   Events,
   FinancesAndLaw,
