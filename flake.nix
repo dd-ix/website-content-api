@@ -7,17 +7,16 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    utils = {
-      url = "github:numtide/flake-utils";
-    };
+    flake-utils.url = "github:numtide/flake-utils";
 
     fenix = {
       url = "github:nix-community/fenix";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
   };
 
-  outputs = inputs@{ self, nixpkgs, naersk, utils, fenix, ... }:
-    utils.lib.eachDefaultSystem
+  outputs = inputs@{ self, nixpkgs, naersk, flake-utils, fenix, ... }:
+    flake-utils.lib.eachDefaultSystem
       (system:
         let
           pkgs = nixpkgs.legacyPackages.${system};
