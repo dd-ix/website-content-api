@@ -40,14 +40,14 @@ in
           At which port is listmonk listening
         '';
       };
-      user =  mkOption {
+      user = mkOption {
         type = types.str;
         default = "admin";
         description = ''
           username of listmonk user
         '';
       };
-      passwordFile =  mkOption {
+      passwordFile = mkOption {
         type = types.path;
         description = ''
           path from where the user password can be read
@@ -55,7 +55,7 @@ in
       };
       allowed_lists = mkOption {
         type = types.listOf types.int;
-        default = [];
+        default = [ ];
         description = ''
           list of allowed mailing list ids
         '';
@@ -123,6 +123,6 @@ in
       group = cfg.group;
       uid = 1503;
     };
-    users.groups."foundation" = {};
+    users.groups."foundation" = { };
   };
 }

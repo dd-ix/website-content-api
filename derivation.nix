@@ -1,4 +1,4 @@
-{  buildPackage, lib, pkg-config, openssl }:
+{ buildPackage, lib, pkg-config, openssl }:
 buildPackage {
   pname = "foundation";
   version = "0.1.0";

@@ -1,6 +1,6 @@
 {
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-23.05";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-23.11";
 
     naersk = {
       url = "github:nix-community/naersk";
@@ -15,15 +15,15 @@
     };
   };
 
-  outputs = inputs@{ self, nixpkgs, naersk, flake-utils, fenix, ... }:
+  outputs = { self, nixpkgs, naersk, flake-utils, fenix, ... }:
     flake-utils.lib.eachDefaultSystem
       (system:
         let
           pkgs = nixpkgs.legacyPackages.${system};
 
           toolchain = with fenix.packages.${system}; combine [
-            latest.cargo
-            latest.rustc
+            stable.cargo
+            stable.rustc
           ];
 
           package = pkgs.callPackage ./derivation.nix {
@@ -32,8 +32,6 @@
               rustc = toolchain;
             }).buildPackage;
           };
-
-          test-vm-pkg = self.nixosConfigurations.foundation-mctest.config.system.build.vm;
 
         in
         rec {
