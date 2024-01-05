@@ -76,7 +76,7 @@ impl News {
 
       let meta: WrittenPostMeta = serde_yaml::from_str(meta)?;
       let file_name = path.file_name().unwrap().to_str().unwrap();
-      if file_name.starts_with("_") {
+      if file_name.starts_with('_') {
         continue;
       }
 

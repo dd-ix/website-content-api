@@ -1,7 +1,7 @@
 use axum::http::header::CONTENT_TYPE;
 use axum::http::Method;
-use axum::Server;
 use clap::Parser;
+use tokio::net::TcpListener;
 use tower_http::cors::{Any, CorsLayer};
 use tracing::{error, info, Level};
 use tracing_subscriber::FmtSubscriber;
@@ -10,7 +10,7 @@ use crate::args::Args;
 use crate::documents::Documents;
 use crate::lists::MailingLists;
 use crate::news::News;
-use crate::routes::{route, ContentPaths};
+use crate::routes::{ContentPaths, route};
 use crate::state::FoundationState;
 use crate::team::Team;
 use crate::text_blocks::TextBlocks;
@@ -56,7 +56,7 @@ async fn main() -> anyhow::Result<()> {
       &args.listmonk_password_file,
       &args.listmonk_lists,
     )
-    .await?,
+      .await?,
   };
 
   let cors = CorsLayer::new()
@@ -70,12 +70,13 @@ async fn main() -> anyhow::Result<()> {
     document: args.content_directory.join("documents/download"),
     team: args.content_directory.join("team/assets"),
   })
-  .layer(cors)
-  .with_state(state);
+    .layer(cors)
+    .with_state(state);
 
-  let server = Server::bind(&args.listen_addr).serve(router.into_make_service());
+  let listener = TcpListener::bind(&args.listen_addr).await?;
+  info!("Listening on http://{}...", args.listen_addr);
 
-  info!("Listening on http://{}...", server.local_addr());
+  let server = axum::serve(listener, router.into_make_service());
 
   if let Err(err) = server.await {
     error!("Error while serving api: {}", err);

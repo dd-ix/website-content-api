@@ -59,7 +59,7 @@ impl Team {
       .map(|member| TeamMember {
         name: member.name.clone(),
         nick: member.nick.clone(),
-        vorstand: member.vorstand.clone(),
+        vorstand: member.vorstand,
         working_groups: member.working_groups.clone(),
         ripe_handle: member.ripe_handle.clone(),
         description: member.description.get(lang).unwrap().clone(),
