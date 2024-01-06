@@ -1,17 +1,11 @@
-{ buildPackage, lib, pkg-config, openssl }:
-buildPackage {
-  pname = "foundation";
-  version = "0.1.0";
-
-  src = ./.;
-
-  cargoSha256 = lib.fakeSha256;
-
-  nativeBuildInputs = [ pkg-config ];
-  buildInputs = [ openssl ];
-
-  meta = {
-    description = "Foundation is a server which serves content website";
-    homepage = "https://github.com/dd-ix/foundation";
-  };
+{ pkgs, cargoToml, ... }:
+let
+  manifest = (pkgs.lib.importTOML cargoToml).package;
+in
+pkgs.rustPlatform.buildRustPackage {
+  pname = manifest.name;
+  version = manifest.version;
+  cargoLock.lockFile = ./Cargo.lock;
+  src = pkgs.lib.cleanSource ./.;
+  cargoBuildFlags = "-p ${manifest.name}";
 }
