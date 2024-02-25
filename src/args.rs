@@ -49,4 +49,11 @@ pub(crate) struct Args {
 
   #[clap(long, env = "FOUNDATION_LISTMONK_LISTS", default_value = "[]")]
   pub(crate) listmonk_lists: String,
+
+  #[clap(
+    long,
+    env = "FOUNDATION_PROMETHEUS_URL",
+    default_value = "https://svc-prom01.dd-ix.net/"
+  )]
+  pub(crate) prometheus_url: Url,
 }

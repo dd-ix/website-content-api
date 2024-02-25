@@ -12,6 +12,7 @@ use crate::lists::MailingLists;
 use crate::news::News;
 use crate::routes::{route, ContentPaths};
 use crate::state::FoundationState;
+use crate::stats::Stats;
 use crate::team::Team;
 use crate::text_blocks::TextBlocks;
 
@@ -22,6 +23,7 @@ mod lists;
 mod news;
 mod routes;
 mod state;
+mod stats;
 mod team;
 mod text_blocks;
 
@@ -57,6 +59,7 @@ async fn main() -> anyhow::Result<()> {
       &args.listmonk_lists,
     )
     .await?,
+    stats: Stats::new(args.prometheus_url),
   };
 
   let cors = CorsLayer::new()

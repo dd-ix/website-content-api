@@ -80,6 +80,10 @@ in
       type = types.str;
       description = ''under which domain foundation serves its content'';
     };
+    prometheusUrl = mkOption {
+                          type = types.str;
+                          description = ''base url of prometheus'';
+                        };
   };
 
   config = lib.mkIf cfg.enable {
@@ -103,6 +107,7 @@ in
             "FOUNDATION_LISTMONK_USER" = "${cfg.listmonk.user}";
             "FOUNDATION_LISTMONK_PASSWORD_FILE" = "${cfg.listmonk.passwordFile}";
             "FOUNDATION_LISTMONK_LISTS" = "${builtins.toJSON cfg.listmonk.allowed_lists}";
+            "FOUNDATION_PROMETHEUS_URL" = "${cfg.prometheusUrl}";
           };
 
           serviceConfig = {

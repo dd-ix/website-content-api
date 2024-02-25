@@ -7,6 +7,7 @@ use tower_http::services::ServeDir;
 use crate::routes::documents::list_documents;
 use crate::routes::lists::add_subscriber;
 use crate::routes::news::{find_keywords, find_post, list_posts};
+use crate::routes::stats::get_stats;
 use crate::routes::team::get_team;
 use crate::routes::text_blocks::find_text_block;
 use crate::state::FoundationState;
@@ -14,6 +15,7 @@ use crate::state::FoundationState;
 mod documents;
 mod lists;
 mod news;
+mod stats;
 mod team;
 mod text_blocks;
 
@@ -43,4 +45,5 @@ pub(crate) fn route(content_paths: &ContentPaths) -> Router<FoundationState> {
     .route("/team/:lang", get(get_team))
     .nest_service("/team/assets", ServeDir::new(&content_paths.team))
     .route("/mailing_lists/:list", post(add_subscriber))
+    .route("/stats", get(get_stats))
 }
