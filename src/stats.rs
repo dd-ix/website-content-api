@@ -114,7 +114,7 @@ impl Stats {
     points: f64,
   ) -> anyhow::Result<Series> {
     let query = PrometheusQuery {
-      query: "sum(rate(sflow_agent_bytes[5m]))*8".to_string(),
+      query: "sum(rate(sflow_router_bytes[5m]))*8".to_string(),
       start,
       end,
       step: ((end - start) / points).as_seconds_f64(),
