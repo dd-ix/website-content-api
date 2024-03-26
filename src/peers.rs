@@ -33,8 +33,10 @@ enum PeeringPolicy {
   Selective,
   #[serde(rename = "case-by-case")]
   CaseByCase,
-  #[serde(rename = "not-peer")]
-  NotPeer,
+  #[serde(rename = "mandatory")]
+  Mandatory,
+  #[serde(rename = "not-a-peer")]
+  NotPeering,
 }
 
 #[derive(Deserialize, Clone)]
@@ -188,7 +190,7 @@ impl NetworkService {
         asn: None,
         name: value.name.clone(),
         url: value.url.clone(),
-        peering_policy: PeeringPolicy::NotPeer,
+        peering_policy: PeeringPolicy::NotPeering,
         speed: Vec::new(),
       })
       .collect();
