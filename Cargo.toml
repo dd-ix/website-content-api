@@ -13,7 +13,7 @@ tower-http = { version = "0.5", default-features = false, features = ["cors", "f
 serde = { version = "1.0", default-features = false, features = ["derive", "rc"] }
 serde_yaml = { version = "0.9", default-features = false }
 clap = { version = "4.4", features = ["derive", "env"] }
-url = { version = "2.5", default-features = false }
+url = { version = "2.5", features = ["serde"], default-features = false }
 serde_json = { version = "1.0" }
 markdown = "1.0.0-alpha.16"
 email_address = "0.2"

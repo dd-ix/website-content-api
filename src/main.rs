@@ -10,6 +10,7 @@ use crate::args::Args;
 use crate::documents::Documents;
 use crate::lists::MailingLists;
 use crate::news::News;
+use crate::peers::NetworkService;
 use crate::routes::{route, ContentPaths};
 use crate::state::FoundationState;
 use crate::stats::Stats;
@@ -21,6 +22,7 @@ mod documents;
 mod lang;
 mod lists;
 mod news;
+mod peers;
 mod routes;
 mod state;
 mod stats;
@@ -60,6 +62,11 @@ async fn main() -> anyhow::Result<()> {
     )
     .await?,
     stats: Stats::new(args.prometheus_url),
+    peers: NetworkService::new(
+      &args.content_directory.join("supporter"),
+      args.ixp_manager_url,
+    )
+    .await?,
   };
 
   let cors = CorsLayer::new()

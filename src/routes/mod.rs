@@ -15,6 +15,7 @@ use crate::state::FoundationState;
 mod documents;
 mod lists;
 mod news;
+mod peers;
 mod stats;
 mod team;
 mod text_blocks;

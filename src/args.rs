@@ -56,4 +56,11 @@ pub(crate) struct Args {
     default_value = "https://svc-prom01.dd-ix.net/"
   )]
   pub(crate) prometheus_url: Url,
+
+  #[clap(
+    long,
+    env = "FOUNDATION_IXP_MANAGER_URL",
+    default_value = "https://portal.dd-ix.net/"
+  )]
+  pub(crate) ixp_manager_url: Url,
 }

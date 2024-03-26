@@ -84,6 +84,10 @@ in
                           type = types.str;
                           description = ''base url of prometheus'';
                         };
+    ixpManagerUrl = mkOption {
+                                      type = types.str;
+                                      description = ''base url of ixp manager'';
+                                    };
   };
 
   config = lib.mkIf cfg.enable {
@@ -108,6 +112,7 @@ in
             "FOUNDATION_LISTMONK_PASSWORD_FILE" = "${cfg.listmonk.passwordFile}";
             "FOUNDATION_LISTMONK_LISTS" = "${builtins.toJSON cfg.listmonk.allowed_lists}";
             "FOUNDATION_PROMETHEUS_URL" = "${cfg.prometheusUrl}";
+            "FOUNDATION_IXP_MANAGER_URL" = "${cfg.ixpManagerUrl}";
           };
 
           serviceConfig = {

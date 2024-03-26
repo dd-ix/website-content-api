@@ -172,7 +172,7 @@ impl MailingLists {
       return Err(MailingListsError::ListmonkError);
     }
 
-    let json_body: ListmonkUserCreateResponse = match response_create.json().await {
+    let _json_body: ListmonkUserCreateResponse = match response_create.json().await {
       Ok(data) => data,
       Err(e) => {
         error!("invalid response {:?}", e);
