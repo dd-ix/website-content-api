@@ -6,7 +6,7 @@ use tracing::error;
 
 use crate::state::FoundationState;
 
-pub(super) async fn get_peers(
+pub(super) async fn get_peers_and_supporter(
   State(state): State<FoundationState>,
 ) -> Result<Json<Vec<FoundationEntity>>, StatusCode> {
   match state.peers.get_stats().await {
