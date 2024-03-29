@@ -119,13 +119,14 @@ impl NetworkService {
       info!("waiting for update to finish {}", self.updating.load(Ordering::Relaxed));
       tokio::time::sleep(std::time::Duration::from_millis(500)).await
     }
-
-    let lock = self.cached.read().await;
-    if let (next_update, stats) = lock.deref() {
-      if next_update < &now {
-        self.updating.store(true, Ordering::Relaxed);
-      } else {
-        return Ok(stats.clone());
+    {
+      let lock = self.cached.read().await;
+      if let (next_update, stats) = lock.deref() {
+        if next_update < &now {
+          self.updating.store(true, Ordering::Relaxed);
+        } else {
+          return Ok(stats.clone());
+        }
       }
     }
 
