@@ -16,7 +16,7 @@ use url::Url;
 
 const MAX_AGE: Duration = Duration::hours(1);
 
-#[derive(Deserialize, Clone)]
+#[derive(Deserialize, PartialEq, Clone)]
 enum EuroIXMemberType {
   #[serde(rename = "peering")]
   Peering,
@@ -46,13 +46,13 @@ struct EuroIXIfList {
 #[derive(Deserialize, Clone)]
 struct EuroIXVLanList {
   ipv4: Vec<serde_json::Value>,
-  ipv6: Vec<serde_json::Value>
+  ipv6: Vec<serde_json::Value>,
 }
 
 #[derive(Deserialize, Clone)]
 struct EuroIXConnection {
   if_list: Vec<EuroIXIfList>,
-  vlan_list: Vec<EuroIXVLanList>
+  vlan_list: Vec<EuroIXVLanList>,
 }
 
 #[derive(Deserialize, Clone)]
@@ -83,6 +83,12 @@ struct StaticSupporterInformation {
 }
 
 #[derive(Serialize, Clone)]
+struct ConnectionSpeed {
+  speed: u64,
+  amount: u64,
+}
+
+#[derive(Serialize, Clone)]
 pub(crate) struct FoundationEntity {
   is_peer: bool,
   is_supporter: bool,
@@ -91,7 +97,7 @@ pub(crate) struct FoundationEntity {
   name: String,
   url: Url,
   peering_policy: Option<PeeringPolicy>,
-  speed: Vec<(u64, u64)>,
+  speed: Vec<ConnectionSpeed>,
 }
 
 #[derive(Clone)]
@@ -122,7 +128,10 @@ impl NetworkService {
     let now = OffsetDateTime::now_utc();
 
     while self.updating.load(Ordering::Relaxed) {
-      info!("waiting for update to finish {}", self.updating.load(Ordering::Relaxed));
+      info!(
+        "waiting for update to finish {}",
+        self.updating.load(Ordering::Relaxed)
+      );
       tokio::time::sleep(std::time::Duration::from_millis(500)).await
     }
     {
@@ -165,6 +174,7 @@ impl NetworkService {
     let mut peers: Vec<FoundationEntity> = api_result
       .member_list
       .into_iter()
+      .filter(|peer| peer.member_type == EuroIXMemberType::IXP)
       .map(|value| {
         let is_supporter = self.yaml_file.supporting_peers.contains(&value.asnum);
         let mut does_v6 = false;
@@ -182,9 +192,14 @@ impl NetworkService {
           }
         }
 
-        let speed_list: Vec<(u64, u64)> = speeds
+        let speed_list: Vec<ConnectionSpeed> = speeds
           .into_iter()
-          .filter_map(|(key, value)| Some((key, value)))
+          .filter_map(|(key, value)| {
+            Some(ConnectionSpeed {
+              speed: key,
+              amount: value,
+            })
+          })
           .collect();
 
         FoundationEntity {
