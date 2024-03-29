@@ -36,8 +36,6 @@ enum PeeringPolicy {
   CaseByCase,
   #[serde(rename = "mandatory")]
   Mandatory,
-  #[serde(rename = "not-a-peer")]
-  NotPeering,
 }
 
 #[derive(Deserialize, Clone)]
@@ -46,8 +44,15 @@ struct EuroIXIfList {
 }
 
 #[derive(Deserialize, Clone)]
+struct EuroIXVLanList {
+  ipv4: Vec<serde_json::Value>,
+  ipv6: Vec<serde_json::Value>
+}
+
+#[derive(Deserialize, Clone)]
 struct EuroIXConnection {
   if_list: Vec<EuroIXIfList>,
+  vlan_list: Vec<EuroIXVLanList>
 }
 
 #[derive(Deserialize, Clone)]
@@ -81,10 +86,11 @@ struct StaticSupporterInformation {
 pub(crate) struct FoundationEntity {
   is_peer: bool,
   is_supporter: bool,
+  does_v6: bool,
   asn: Option<i32>,
   name: String,
   url: Url,
-  peering_policy: PeeringPolicy,
+  peering_policy: Option<PeeringPolicy>,
   speed: Vec<(u64, u64)>,
 }
 
@@ -161,7 +167,7 @@ impl NetworkService {
       .into_iter()
       .map(|value| {
         let is_supporter = self.yaml_file.supporting_peers.contains(&value.asnum);
-
+        let mut does_v6 = false;
         let mut speeds: HashMap<u64, u64> = HashMap::new();
 
         for connection_list in value.connection_list {
@@ -170,6 +176,9 @@ impl NetworkService {
               .entry(if_list.if_speed)
               .and_modify(|count| *count += 1)
               .or_insert(1);
+          }
+          for vlan in connection_list.vlan_list {
+            does_v6 = does_v6 || !vlan.ipv6.is_empty();
           }
         }
 
@@ -181,10 +190,11 @@ impl NetworkService {
         FoundationEntity {
           is_peer: true,
           is_supporter,
+          does_v6,
           asn: Some(value.asnum),
           name: value.name,
           url: value.url,
-          peering_policy: PeeringPolicy::Open,
+          peering_policy: None,
           speed: speed_list,
         }
       })
@@ -197,10 +207,11 @@ impl NetworkService {
       .map(|value| FoundationEntity {
         is_peer: false,
         is_supporter: true,
+        does_v6: false,
         asn: None,
         name: value.name.clone(),
         url: value.url.clone(),
-        peering_policy: PeeringPolicy::NotPeering,
+        peering_policy: None,
         speed: Vec::new(),
       })
       .collect();
