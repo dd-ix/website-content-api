@@ -45,8 +45,8 @@ struct EuroIXIfList {
 
 #[derive(Deserialize, Clone)]
 struct EuroIXVLanList {
-  ipv4: Vec<serde_json::Value>,
-  ipv6: Vec<serde_json::Value>,
+  ipv4: Option<serde_json::Value>,
+  ipv6: Option<serde_json::Value>,
 }
 
 #[derive(Deserialize, Clone)]
@@ -188,7 +188,7 @@ impl NetworkService {
               .or_insert(1);
           }
           for vlan in connection_list.vlan_list {
-            does_v6 = does_v6 || !vlan.ipv6.is_empty();
+            does_v6 = does_v6 || !vlan.ipv6.is_none();
           }
         }
 
