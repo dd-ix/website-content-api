@@ -174,7 +174,7 @@ impl NetworkService {
     let mut peers: Vec<FoundationEntity> = api_result
       .member_list
       .into_iter()
-      .filter(|peer| peer.member_type == EuroIXMemberType::IXP)
+      .filter(|peer| peer.member_type != EuroIXMemberType::IXP)
       .map(|value| {
         let is_supporter = self.yaml_file.supporting_peers.contains(&value.asnum);
         let mut does_v6 = false;
