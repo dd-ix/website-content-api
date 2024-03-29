@@ -8,6 +8,7 @@ use std::sync::atomic::Ordering;
 use std::sync::Arc;
 use time::{Duration, OffsetDateTime};
 use tokio::sync::RwLock;
+use tracing::error;
 
 use url::Url;
 
@@ -127,7 +128,14 @@ impl NetworkService {
       }
     }
 
-    let new_values = self.fetch_values().await?;
+    let new_values = match self.fetch_values().await {
+      Ok(value) => value,
+      Err(e) => {
+        error!("couldn't fetch values! because of {e}");
+        self.updating.store(false, Ordering::Relaxed);
+        return Err(e);
+      }
+    };
 
     *self.cached.write().await = (now + MAX_AGE, new_values.clone());
     self.updating.store(false, Ordering::Relaxed);
