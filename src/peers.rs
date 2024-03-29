@@ -8,7 +8,7 @@ use std::sync::atomic::Ordering;
 use std::sync::Arc;
 use time::{Duration, OffsetDateTime};
 use tokio::sync::RwLock;
-use tracing::error;
+use tracing::{error, info};
 
 use url::Url;
 
@@ -116,6 +116,7 @@ impl NetworkService {
     let now = OffsetDateTime::now_utc();
 
     while self.updating.load(Ordering::Relaxed) {
+      info!("waiting for update to finish {}", self.updating.load(Ordering::Relaxed));
       tokio::time::sleep(std::time::Duration::from_millis(500)).await
     }
 
@@ -131,7 +132,7 @@ impl NetworkService {
     let new_values = match self.fetch_values().await {
       Ok(value) => value,
       Err(e) => {
-        error!("couldn't fetch values! because of {e}");
+        error!("couldn't update values! because of {e}");
         self.updating.store(false, Ordering::Relaxed);
         return Err(e);
       }
@@ -144,10 +145,10 @@ impl NetworkService {
   }
 
   async fn fetch_values(&self) -> anyhow::Result<Vec<FoundationEntity>> {
+    info!("updating member & supporter list!");
     let api_result: EuroIXApiScheme = self
       .client
       .get(self.ixp_manager_url.join("/api/v4/member-export/ixf/0.6")?)
-      //.query(&query)
       .send()
       .await?
       .error_for_status()?
@@ -205,6 +206,7 @@ impl NetworkService {
 
     peers.append(&mut supporters);
 
+    info!("found {} members & supporters", peers.len());
     peers.sort_by_key(|x| x.name.clone());
 
     Ok(peers)
