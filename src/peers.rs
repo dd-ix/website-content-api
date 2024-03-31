@@ -90,13 +90,12 @@ struct ConnectionSpeed {
 
 #[derive(Serialize, Clone)]
 pub(crate) struct FoundationEntity {
-  is_peer: bool,
-  is_supporter: bool,
-  does_v6: bool,
+  supporter: bool,
+  rs_v4: bool,
+  rs_v6: bool,
   asn: Option<i32>,
   name: String,
   url: Url,
-  peering_policy: Option<PeeringPolicy>,
   speed: Vec<ConnectionSpeed>,
 }
 
@@ -177,7 +176,8 @@ impl NetworkService {
       .filter(|peer| peer.member_type != EuroIXMemberType::IXP)
       .map(|value| {
         let is_supporter = self.yaml_file.supporting_peers.contains(&value.asnum);
-        let mut does_v6 = false;
+        let mut does_v4 = false;
+        let mut does_v6 = false
         let mut speeds: HashMap<u64, u64> = HashMap::new();
 
         for connection_list in value.connection_list {
@@ -188,7 +188,8 @@ impl NetworkService {
               .or_insert(1);
           }
           for vlan in connection_list.vlan_list {
-            does_v6 = does_v6 || !vlan.ipv6.is_none();
+            does_v4 = does_v4 || vlan.ipv4.is_some();
+            does_v6 = does_v6 || vlan.ipv6.is_some();
           }
         }
 
@@ -203,13 +204,12 @@ impl NetworkService {
           .collect();
 
         FoundationEntity {
-          is_peer: true,
-          is_supporter,
-          does_v6,
+          supporter: is_supporter,
+          rs_v4: does_v4,
+          rs_v6: does_v6,
           asn: Some(value.asnum),
           name: value.name,
           url: value.url,
-          peering_policy: None,
           speed: speed_list,
         }
       })
@@ -220,13 +220,12 @@ impl NetworkService {
       .supporters
       .iter()
       .map(|value| FoundationEntity {
-        is_peer: false,
-        is_supporter: true,
-        does_v6: false,
+        supporter: true,
+        rs_v4: false,
+        rs_v6: false,
         asn: None,
         name: value.name.clone(),
         url: value.url.clone(),
-        peering_policy: None,
         speed: Vec::new(),
       })
       .collect();

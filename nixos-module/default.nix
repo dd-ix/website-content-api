@@ -81,9 +81,9 @@ in
       description = ''under which domain foundation serves its content'';
     };
     prometheusUrl = mkOption {
-                          type = types.str;
-                          description = ''base url of prometheus'';
-                        };
+      type = types.str;
+      description = ''base url of prometheus'';
+    };
     ixpManagerUrl = mkOption {
                                       type = types.str;
                                       description = ''base url of ixp manager'';
