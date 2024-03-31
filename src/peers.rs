@@ -1,15 +1,15 @@
-use reqwest::Client;
-use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::ops::Deref;
 use std::path::PathBuf;
 use std::sync::atomic::AtomicBool;
 use std::sync::atomic::Ordering;
 use std::sync::Arc;
+
+use reqwest::Client;
+use serde::{Deserialize, Serialize};
 use time::{Duration, OffsetDateTime};
 use tokio::sync::RwLock;
 use tracing::{error, info};
-
 use url::Url;
 
 // https://github.com/euro-ix/json-schemas/wiki/Schema-Field-Entries-Members#schema-field-entries---members
@@ -107,6 +107,7 @@ pub(crate) struct NetworkService {
   yaml_file: Arc<StaticSupporterInformation>,
   cached: Arc<RwLock<(OffsetDateTime, Vec<FoundationEntity>)>>,
 }
+
 impl NetworkService {
   pub(crate) async fn new(base_path: &PathBuf, ixp_manager_url: Url) -> anyhow::Result<Self> {
     let serialized_supporter = tokio::fs::read_to_string(base_path.join("supporter.yaml")).await?;
@@ -135,12 +136,11 @@ impl NetworkService {
     }
     {
       let lock = self.cached.read().await;
-      if let (next_update, stats) = lock.deref() {
-        if next_update < &now {
-          self.updating.store(true, Ordering::Relaxed);
-        } else {
-          return Ok(stats.clone());
-        }
+      let (next_update, stats) = lock.deref();
+      if next_update < &now {
+        self.updating.store(true, Ordering::Relaxed);
+      } else {
+        return Ok(stats.clone());
       }
     }
 
@@ -177,7 +177,7 @@ impl NetworkService {
       .map(|value| {
         let is_supporter = self.yaml_file.supporting_peers.contains(&value.asnum);
         let mut does_v4 = false;
-        let mut does_v6 = false
+        let mut does_v6 = false;
         let mut speeds: HashMap<u64, u64> = HashMap::new();
 
         for connection_list in value.connection_list {
@@ -195,11 +195,9 @@ impl NetworkService {
 
         let speed_list: Vec<ConnectionSpeed> = speeds
           .into_iter()
-          .filter_map(|(key, value)| {
-            Some(ConnectionSpeed {
-              speed: key,
-              amount: value,
-            })
+          .map(|(key, value)| ConnectionSpeed {
+            speed: key,
+            amount: value,
           })
           .collect();
 
