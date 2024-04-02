@@ -14,20 +14,20 @@
         in
         {
           packages = rec {
-            foundation = pkgs.callPackage ./derivation.nix {
+            website-content-api = pkgs.callPackage ./derivation.nix {
               cargoToml = ./Cargo.toml;
             };
-            default = foundation;
+            default = website-content-api;
           };
         }
       ) // {
       overlays.default = _: prev: {
-        foundation = self.packages."${prev.system}".foundation;
+        website-content-api = self.packages."${prev.system}".website-content-api;
       };
 
       nixosModules = rec {
-        foundation = import ./nixos-module;
-        default = foundation;
+        website-content-api = import ./nixos-module;
+        default = website-content-api;
       };
     };
 }
