@@ -1,27 +1,27 @@
 { pkgs, config, lib, ... }:
 let
-  cfg = config.dd-ix.foundation;
+  cfg = config.dd-ix.website-content-api;
 in
 {
-  options.dd-ix.foundation = with lib; {
+  options.dd-ix.website-content-api = with lib; {
     enable = mkOption {
       type = types.bool;
       default = false;
-      description = ''Wether to enable foundation service'';
+      description = ''Wether to enable website-content-api service'';
     };
     http = {
       host = mkOption {
         type = types.str;
         default = "http://127.0.0.1";
         description = ''
-          To which IP foundation should bind.
+          To which IP website-content-api should bind.
         '';
       };
       port = mkOption {
         type = types.port;
         default = 8080;
         description = ''
-          To which port should foundation bind.
+          To which port should website-content-api bind.
         '';
       };
     };
@@ -63,12 +63,12 @@ in
     };
     user = mkOption {
       type = types.str;
-      default = "foundation";
+      default = "website-content-api";
       description = ''systemd user'';
     };
     group = mkOption {
       type = types.str;
-      default = "foundation";
+      default = "website-content-api";
       description = ''group of systemd user'';
     };
     logLevel = mkOption {
@@ -78,7 +78,7 @@ in
     };
     url = mkOption {
       type = types.str;
-      description = ''under which domain foundation serves its content'';
+      description = ''under which domain website-content-api serves its content'';
     };
     prometheusUrl = mkOption {
       type = types.str;
@@ -93,26 +93,26 @@ in
   config = lib.mkIf cfg.enable {
     systemd = {
       services = {
-        "foundation" = {
+        "website-content-api" = {
           enable = true;
           wantedBy = [ "multi-user.target" ];
 
           script = ''
-            exec ${pkgs.foundation}/bin/foundation&
+            exec ${pkgs.website-content-api}/bin/website-content-api&
           '';
 
           environment = {
             "RUST_LOG" = "${cfg.logLevel}";
             "RUST_BACKTRACE" = if (cfg.logLevel == "info") then "0" else "1";
-            "FOUNDATION_LISTEN_ADDR" = "${cfg.http.host}:${toString cfg.http.port}";
-            "FOUNDATION_CONTENT_DIRECTORY" = "${pkgs.website-content}/content/";
-            "FOUNDATION_BASE_URL" = "${cfg.url}";
-            "FOUNDATION_LISTMONK_URL" = "${cfg.listmonk.host}:${toString cfg.listmonk.port}";
-            "FOUNDATION_LISTMONK_USER" = "${cfg.listmonk.user}";
-            "FOUNDATION_LISTMONK_PASSWORD_FILE" = "${cfg.listmonk.passwordFile}";
-            "FOUNDATION_LISTMONK_LISTS" = "${builtins.toJSON cfg.listmonk.allowed_lists}";
-            "FOUNDATION_PROMETHEUS_URL" = "${cfg.prometheusUrl}";
-            "FOUNDATION_IXP_MANAGER_URL" = "${cfg.ixpManagerUrl}";
+            "website-content-api_LISTEN_ADDR" = "${cfg.http.host}:${toString cfg.http.port}";
+            "website-content-api_CONTENT_DIRECTORY" = "${pkgs.website-content}/content/";
+            "website-content-api_BASE_URL" = "${cfg.url}";
+            "website-content-api_LISTMONK_URL" = "${cfg.listmonk.host}:${toString cfg.listmonk.port}";
+            "website-content-api_LISTMONK_USER" = "${cfg.listmonk.user}";
+            "website-content-api_LISTMONK_PASSWORD_FILE" = "${cfg.listmonk.passwordFile}";
+            "website-content-api_LISTMONK_LISTS" = "${builtins.toJSON cfg.listmonk.allowed_lists}";
+            "website-content-api_PROMETHEUS_URL" = "${cfg.prometheusUrl}";
+            "website-content-api_IXP_MANAGER_URL" = "${cfg.ixpManagerUrl}";
           };
 
           serviceConfig = {
@@ -127,12 +127,12 @@ in
     # user accounts for systemd units
     users.users."${cfg.user}" = {
       name = "${cfg.user}";
-      description = "This guy runs foundation";
+      description = "This guy runs website-content-api";
       isNormalUser = false;
       isSystemUser = true;
       group = cfg.group;
       uid = 1503;
     };
-    users.groups."foundation" = { };
+    users.groups."website-content-api" = { };
   };
 }
