@@ -6,8 +6,8 @@ in
   options.dd-ix.website-content-api = {
     enable = lib.mkEnableOption "website-content-api";
 
-    package = lib.mkPackageOption pkgs "website-content-api";
-    content = lib.mkPackageOption pkgs "website-content";
+    package = lib.mkPackageOption pkgs "website-content-api" {};
+    content = lib.mkPackageOption pkgs "website-content" {};
 
     domain = lib.mkOption {
       type = lib.types.str;
@@ -86,7 +86,7 @@ in
   };
 
   config = lib.mkIf cfg.enable {
-    systemdservices.website-content-api = {
+    systemd.services.website-content-api = {
       enable = true;
       wantedBy = [ "multi-user.target" ];
 
