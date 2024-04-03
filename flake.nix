@@ -26,7 +26,7 @@
       };
 
       nixosModules = rec {
-        website-content-api = import ./nixos-module;
+        website-content-api = import ./module.nix;
         default = website-content-api;
       };
     };
