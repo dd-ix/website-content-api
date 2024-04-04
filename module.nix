@@ -6,8 +6,8 @@ in
   options.dd-ix.website-content-api = {
     enable = lib.mkEnableOption "website-content-api";
 
-    package = lib.mkPackageOption pkgs "website-content-api" {};
-    content = lib.mkPackageOption pkgs "website-content" {};
+    package = lib.mkPackageOption pkgs "website-content-api" { };
+    content = lib.mkPackageOption pkgs "website-content" { };
 
     domain = lib.mkOption {
       type = lib.types.str;
@@ -91,17 +91,17 @@ in
       wantedBy = [ "multi-user.target" ];
 
       environment = {
-        "RUST_LOG" = "${cfg.logLevel}";
-        "RUST_BACKTRACE" = if (cfg.logLevel == "info") then "0" else "1";
-        "WEBSITE_CONTENT_APILISTEN_ADDR" = "${cfg.http.host}:${toString cfg.http.port}";
-        "WEBSITE_CONTENT_API_CONTENT_DIRECTORY" = "${pkgs.website-content}/content/";
-        "WEBSITE_CONTENT_API_BASE_URL" = "${cfg.url}";
-        "WEBSITE_CONTENT_API_LISTMONK_URL" = "${cfg.listmonk.host}:${toString cfg.listmonk.port}";
-        "WEBSITE_CONTENT_API_LISTMONK_USER" = "${cfg.listmonk.user}";
-        "WEBSITE_CONTENT_API_LISTMONK_PASSWORD_FILE" = "${cfg.listmonk.passwordFile}";
-        "WEBSITE_CONTENT_API_LISTMONK_LISTS" = "${builtins.toJSON cfg.listmonk.allowed_lists}";
-        "WEBSITE_CONTENT_API_PROMETHEUS_URL" = "${cfg.prometheusUrl}";
-        "WEBSITE_CONTENT_API_IXP_MANAGER_URL" = "${cfg.ixpManagerUrl}";
+        RUST_LOG = cfg.logLevel;
+        RUST_BACKTRACE = if (cfg.logLevel == "info") then "0" else "1";
+        WEBSITE_CONTENT_APILISTEN_ADDR = "${cfg.http.host}:${toString cfg.http.port}";
+        WEBSITE_CONTENT_API_CONTENT_DIRECTORY = "${pkgs.website-content}/content/";
+        WEBSITE_CONTENT_API_BASE_URL = cfg.url;
+        WEBSITE_CONTENT_API_LISTMONK_URL = "${cfg.listmonk.host}:${toString cfg.listmonk.port}";
+        WEBSITE_CONTENT_API_LISTMONK_USER = cfg.listmonk.user;
+        WEBSITE_CONTENT_API_LISTMONK_PASSWORD_FILE = cfg.listmonk.passwordFile;
+        WEBSITE_CONTENT_API_LISTMONK_LISTS = "${builtins.toJSON cfg.listmonk.allowed_lists}";
+        WEBSITE_CONTENT_API_PROMETHEUS_URL = cfg.prometheusUrl;
+        WEBSITE_CONTENT_API_IXP_MANAGER_URL = cfg.ixpManagerUrl;
       };
 
       serviceConfig = {
