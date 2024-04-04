@@ -98,7 +98,7 @@ in
         WEBSITE_CONTENT_API_BASE_URL = cfg.url;
         WEBSITE_CONTENT_API_LISTMONK_URL = "${cfg.listmonk.host}:${toString cfg.listmonk.port}";
         WEBSITE_CONTENT_API_LISTMONK_USER = cfg.listmonk.user;
-        WEBSITE_CONTENT_API_LISTMONK_PASSWORD_FILE = cfg.listmonk.passwordFile;
+        WEBSITE_CONTENT_API_LISTMONK_PASSWORD_FILE = "%d/listmonk_pw";
         WEBSITE_CONTENT_API_LISTMONK_LISTS = "${builtins.toJSON cfg.listmonk.allowed_lists}";
         WEBSITE_CONTENT_API_PROMETHEUS_URL = cfg.prometheusUrl;
         WEBSITE_CONTENT_API_IXP_MANAGER_URL = cfg.ixpManagerUrl;
@@ -108,6 +108,7 @@ in
         ExecStart = "${pkgs.website-content-api}/bin/website-content-api";
         DynamicUser = true;
         Restart = "always";
+        LoadCredential = "listmonk_pw:${cfg.listmonk.passwordFile}";
       };
     };
 
