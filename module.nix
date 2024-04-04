@@ -93,7 +93,7 @@ in
       environment = {
         RUST_LOG = cfg.logLevel;
         RUST_BACKTRACE = if (cfg.logLevel == "info") then "0" else "1";
-        WEBSITE_CONTENT_APILISTEN_ADDR = "${cfg.http.host}:${toString cfg.http.port}";
+        WEBSITE_CONTENT_API_LISTEN_ADDR = "${cfg.http.host}:${toString cfg.http.port}";
         WEBSITE_CONTENT_API_CONTENT_DIRECTORY = "${pkgs.website-content}/content/";
         WEBSITE_CONTENT_API_BASE_URL = cfg.url;
         WEBSITE_CONTENT_API_LISTMONK_URL = "${cfg.listmonk.host}:${toString cfg.listmonk.port}";
@@ -105,7 +105,7 @@ in
       };
 
       serviceConfig = {
-        ExecStart = "${pkgs.website-content-api}/bin/website-content-api";
+        ExecStart = "${pkgs.website-content-api}/bin/foundation";
         DynamicUser = true;
         Restart = "always";
         LoadCredential = "listmonk_pw:${cfg.listmonk.passwordFile}";
@@ -116,24 +116,24 @@ in
       enable = true;
 
       virtualHosts."${cfg.domain}".locations = {
-        "/text-blocks/assets" = {
-          root = "${cfg.content}/content/text_blocks/assets";
+        "/text-blocks/assets/" = {
+          alias = "${cfg.content}/content/text_blocks/assets/";
           tryFiles = "$uri $uri/ =404";
           extraConfig = ''
             expires max;
             access_log off;
           '';
         };
-        "/news/assets" = {
-          root = "${cfg.content}/content/news/assets";
+        "/news/assets/" = {
+          alias = "${cfg.content}/content/news/assets/";
           tryFiles = "$uri $uri/ =404";
           extraConfig = ''
             expires max;
             access_log off;
           '';
         };
-        "/team/assets" = {
-          root = "${cfg.content}/content/team/assets";
+        "/team/assets/" = {
+          alias = "${cfg.content}/content/team/assets/";
           tryFiles = "$uri $uri/ =404";
           extraConfig = ''
             expires max;
