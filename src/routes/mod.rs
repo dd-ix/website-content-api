@@ -3,6 +3,7 @@ use std::path::PathBuf;
 use axum::routing::{get, post};
 use axum::Router;
 use tower_http::services::ServeDir;
+use crate::routes::bird::get_bird;
 
 use crate::routes::documents::list_documents;
 use crate::routes::lists::add_subscriber;
@@ -20,6 +21,7 @@ mod peers;
 mod stats;
 mod team;
 mod text_blocks;
+mod bird;
 
 pub(crate) struct ContentPaths {
   pub(crate) news: PathBuf,
@@ -49,4 +51,5 @@ pub(crate) fn route(content_paths: &ContentPaths) -> Router<FoundationState> {
     .route("/mailing_lists/:list", post(add_subscriber))
     .route("/stats", get(get_stats))
     .route("/peers", get(get_peers_and_supporter))
+    .route("/bird", get(get_bird))
 }

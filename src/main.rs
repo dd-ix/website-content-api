@@ -7,6 +7,7 @@ use tracing::{error, info, Level};
 use tracing_subscriber::FmtSubscriber;
 
 use crate::args::Args;
+use crate::bird::Bird;
 use crate::documents::Documents;
 use crate::lists::MailingLists;
 use crate::news::News;
@@ -28,6 +29,7 @@ mod state;
 mod stats;
 mod team;
 mod text_blocks;
+mod bird;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
@@ -67,6 +69,7 @@ async fn main() -> anyhow::Result<()> {
       args.ixp_manager_url,
     )
     .await?,
+    bird: Bird::new(args.bird_html).await?
   };
 
   let cors = CorsLayer::new()

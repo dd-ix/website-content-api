@@ -1,3 +1,4 @@
+use crate::bird::Bird;
 use crate::documents::Documents;
 use crate::lists::MailingLists;
 use crate::news::News;
@@ -15,4 +16,5 @@ pub(crate) struct FoundationState {
   pub(crate) lists: MailingLists,
   pub(crate) stats: Stats,
   pub(crate) peers: NetworkService,
+  pub(crate) bird: Bird,
 }
