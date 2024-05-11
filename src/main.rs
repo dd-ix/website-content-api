@@ -19,6 +19,8 @@ use crate::team::Team;
 use crate::text_blocks::TextBlocks;
 
 mod args;
+mod bird;
+mod cache;
 mod documents;
 mod lang;
 mod lists;
@@ -29,7 +31,6 @@ mod state;
 mod stats;
 mod team;
 mod text_blocks;
-mod bird;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
@@ -69,7 +70,7 @@ async fn main() -> anyhow::Result<()> {
       args.ixp_manager_url,
     )
     .await?,
-    bird: Bird::new(args.bird_html).await?
+    bird: Bird::new(args.bird_html).await?,
   };
 
   let cors = CorsLayer::new()

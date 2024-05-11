@@ -1,16 +1,14 @@
 use std::str::FromStr;
-use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
 
 use anyhow::anyhow;
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
 use time::{Duration, OffsetDateTime};
-use tokio::sync::RwLock;
 use tokio::try_join;
 use url::Url;
 
-const MAX_AGE: Duration = Duration::minutes(10);
+use crate::cache::{Cache, Updater};
 
 #[derive(Serialize)]
 struct PrometheusQuery {
@@ -56,38 +54,20 @@ pub(crate) struct AggregatedStats {
 
 #[derive(Clone)]
 pub(crate) struct Stats {
-  prometheus_url: Arc<Url>,
-  client: Client,
-  updating: Arc<AtomicBool>,
-  cached: Arc<RwLock<Option<(OffsetDateTime, Arc<AggregatedStats>)>>>,
+  traffic: Arc<Cache<TrafficUpdater>>,
 }
 
-impl Stats {
-  pub(crate) fn new(prometheus_url: Url) -> Self {
-    Self {
-      prometheus_url: Arc::new(prometheus_url),
-      client: Client::new(),
-      updating: Arc::new(AtomicBool::new(false)),
-      cached: Arc::new(RwLock::new(Option::None)),
-    }
-  }
+struct TrafficUpdater {
+  client: Client,
+  prometheus_url: Url,
+}
 
-  pub(crate) async fn get_stats(&self) -> anyhow::Result<Arc<AggregatedStats>> {
+impl Updater for TrafficUpdater {
+  type Output = AggregatedStats;
+  type Error = anyhow::Error;
+
+  async fn update(&self) -> Result<Self::Output, Self::Error> {
     let now = OffsetDateTime::now_utc();
-    {
-      while self.updating.load(Ordering::Relaxed) {
-        tokio::time::sleep(std::time::Duration::from_millis(500)).await
-      }
-
-      let lock = self.cached.read().await;
-      if let Some((next_update, stats)) = lock.as_ref() {
-        if next_update < &now {
-          self.updating.store(true, Ordering::Relaxed);
-        } else {
-          return Ok(stats.clone());
-        }
-      }
-    }
 
     let (two_days, seven_days, month) = try_join!(
       self.query_stats(OffsetDateTime::now_utc() - Duration::days(2), now, 255.0),
@@ -95,18 +75,16 @@ impl Stats {
       self.query_stats(OffsetDateTime::now_utc() - Duration::days(30), now, 255.0),
     )?;
 
-    let metrics = Arc::new(AggregatedStats {
+    let metrics = AggregatedStats {
       two_days,
       seven_days,
       month,
-    });
-
-    *self.cached.write().await = Some((now + MAX_AGE, metrics.clone()));
-    self.updating.store(false, Ordering::Relaxed);
+    };
 
     Ok(metrics)
   }
-
+}
+impl TrafficUpdater {
   async fn query_stats(
     &self,
     start: OffsetDateTime,
@@ -142,5 +120,24 @@ impl Stats {
         .map(|(time, value)| (time, f64::from_str(&value).unwrap()))
         .collect::<Vec<_>>(),
     })
+  }
+}
+
+impl Stats {
+  pub(crate) fn new(prometheus_url: Url) -> Self {
+    let client = Client::new();
+
+    let traffic_updater = TrafficUpdater {
+      client,
+      prometheus_url,
+    };
+
+    Self {
+      traffic: Arc::new(Cache::new(traffic_updater)),
+    }
+  }
+
+  pub(crate) async fn get_stats(&self) -> anyhow::Result<Arc<AggregatedStats>> {
+    self.traffic.get().await
   }
 }
