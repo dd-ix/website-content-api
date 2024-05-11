@@ -12,6 +12,9 @@ use tokio::sync::RwLock;
 use tracing::{error, info};
 use url::Url;
 
+use crate::cache::Cache;
+use crate::cache::Updater;
+
 // https://github.com/euro-ix/json-schemas/wiki/Schema-Field-Entries-Members#schema-field-entries---members
 
 const MAX_AGE: Duration = Duration::hours(1);
@@ -101,65 +104,20 @@ pub(crate) struct FoundationEntity {
 
 #[derive(Clone)]
 pub(crate) struct NetworkService {
-  ixp_manager_url: Arc<Url>,
-  client: Client,
-  updating: Arc<AtomicBool>,
-  yaml_file: Arc<StaticSupporterInformation>,
-  cached: Arc<RwLock<(OffsetDateTime, Vec<FoundationEntity>)>>,
+  cached: Arc<Cache<PeersUpdater>>,
 }
 
-impl NetworkService {
-  pub(crate) async fn new(base_path: &PathBuf, ixp_manager_url: Url) -> anyhow::Result<Self> {
-    let serialized_supporter = tokio::fs::read_to_string(base_path.join("supporter.yaml")).await?;
-    let yaml_file = serde_yaml::from_str(&serialized_supporter)?;
+struct PeersUpdater {
+  client: Client,
+  ixp_manager_url: Url,
+  yaml_file: StaticSupporterInformation,
+}
 
-    Ok(Self {
-      ixp_manager_url: Arc::new(ixp_manager_url),
-      client: Client::new(),
-      updating: Arc::new(AtomicBool::new(false)),
-      yaml_file: Arc::new(yaml_file),
-      cached: Arc::new(RwLock::new((
-        OffsetDateTime::now_utc() - MAX_AGE,
-        Vec::new(),
-      ))),
-    })
-  }
-  pub(crate) async fn get_stats(&self) -> anyhow::Result<Vec<FoundationEntity>> {
-    let now = OffsetDateTime::now_utc();
+impl Updater for PeersUpdater {
+  type Output = Vec<FoundationEntity>;
+  type Error = anyhow::Error;
 
-    while self.updating.load(Ordering::Relaxed) {
-      info!(
-        "waiting for update to finish {}",
-        self.updating.load(Ordering::Relaxed)
-      );
-      tokio::time::sleep(std::time::Duration::from_millis(500)).await
-    }
-    {
-      let lock = self.cached.read().await;
-      let (next_update, stats) = lock.deref();
-      if next_update < &now {
-        self.updating.store(true, Ordering::Relaxed);
-      } else {
-        return Ok(stats.clone());
-      }
-    }
-
-    let new_values = match self.fetch_values().await {
-      Ok(value) => value,
-      Err(e) => {
-        error!("couldn't update values! because of {e}");
-        self.updating.store(false, Ordering::Relaxed);
-        return Err(e);
-      }
-    };
-
-    *self.cached.write().await = (now + MAX_AGE, new_values.clone());
-    self.updating.store(false, Ordering::Relaxed);
-
-    Ok(new_values)
-  }
-
-  async fn fetch_values(&self) -> anyhow::Result<Vec<FoundationEntity>> {
+  async fn update(&self) -> Result<Self::Output, Self::Error> {
     info!("updating member & supporter list!");
     let api_result: EuroIXApiScheme = self
       .client
@@ -234,5 +192,25 @@ impl NetworkService {
     peers.sort_by_key(|x| x.name.clone());
 
     Ok(peers)
+  }
+}
+
+impl NetworkService {
+  pub(crate) async fn new(base_path: &PathBuf, ixp_manager_url: Url) -> anyhow::Result<Self> {
+    let serialized_supporter = tokio::fs::read_to_string(base_path.join("supporter.yaml")).await?;
+    let yaml_file = serde_yaml::from_str(&serialized_supporter)?;
+
+    let updater = PeersUpdater {
+      client: Client::new(),
+      ixp_manager_url,
+      yaml_file,
+    };
+
+    Ok(Self {
+      cached: Arc::new(Cache::new(updater)),
+    })
+  }
+  pub(crate) async fn get_stats(&self) -> anyhow::Result<Arc<Vec<FoundationEntity>>> {
+    self.cached.get().await
   }
 }

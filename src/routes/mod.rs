@@ -1,9 +1,9 @@
 use std::path::PathBuf;
 
+use crate::routes::bird::get_bird;
 use axum::routing::{get, post};
 use axum::Router;
 use tower_http::services::ServeDir;
-use crate::routes::bird::get_bird;
 
 use crate::routes::documents::list_documents;
 use crate::routes::lists::add_subscriber;
@@ -14,6 +14,7 @@ use crate::routes::team::get_team;
 use crate::routes::text_blocks::find_text_block;
 use crate::state::FoundationState;
 
+mod bird;
 mod documents;
 mod lists;
 mod news;
@@ -21,7 +22,6 @@ mod peers;
 mod stats;
 mod team;
 mod text_blocks;
-mod bird;
 
 pub(crate) struct ContentPaths {
   pub(crate) news: PathBuf,

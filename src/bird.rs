@@ -1,9 +1,9 @@
 use std::path::{Path, PathBuf};
-use std::sync::{Arc};
+use std::sync::Arc;
 
 use select::predicate::Name;
 use time::{Duration, OffsetDateTime};
-use tokio::sync::{RwLock, Mutex};
+use tokio::sync::{Mutex, RwLock};
 
 const MAX_AGE: Duration = Duration::minutes(10);
 
@@ -11,19 +11,23 @@ const MAX_AGE: Duration = Duration::minutes(10);
 pub(crate) struct Bird {
   path: PathBuf,
   next_update: Arc<Mutex<OffsetDateTime>>,
-  content: Arc<RwLock<Arc<String>>>
+  content: Arc<RwLock<Arc<String>>>,
 }
 
 impl Bird {
   pub(crate) async fn new(path: PathBuf) -> anyhow::Result<Self> {
     let content = load(&path).await?;
-    Ok(Self { path, next_update: Arc::new(Mutex::new(OffsetDateTime::now_utc())), content: Arc::new(RwLock::new(Arc::new(content))) })
+    Ok(Self {
+      path,
+      next_update: Arc::new(Mutex::new(OffsetDateTime::now_utc())),
+      content: Arc::new(RwLock::new(Arc::new(content))),
+    })
   }
 
   pub(crate) async fn content(&self) -> anyhow::Result<Arc<String>> {
     {
       let mut lock = self.next_update.lock().await;
-      if  OffsetDateTime::now_utc()>*lock {
+      if OffsetDateTime::now_utc() > *lock {
         *self.content.write().await = Arc::new(load(&self.path).await?);
         *lock = OffsetDateTime::now_utc();
       }

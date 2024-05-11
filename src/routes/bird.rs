@@ -2,8 +2,8 @@ use std::sync::Arc;
 
 use axum::extract::State;
 use axum::http::StatusCode;
-use axum::Json;
 use axum::response::Html;
+use axum::Json;
 use tracing::error;
 
 use crate::state::FoundationState;
