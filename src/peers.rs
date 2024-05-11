@@ -113,6 +113,7 @@ struct PeersUpdater {
   yaml_file: StaticSupporterInformation,
 }
 
+#[async_trait::async_trait]
 impl Updater for PeersUpdater {
   type Output = Vec<FoundationEntity>;
   type Error = anyhow::Error;

@@ -332,6 +332,7 @@ name = "foundation"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "async-trait",
  "axum",
  "clap",
  "email_address",

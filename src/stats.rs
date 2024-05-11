@@ -62,6 +62,7 @@ struct TrafficUpdater {
   prometheus_url: Url,
 }
 
+#[async_trait::async_trait]
 impl Updater for TrafficUpdater {
   type Output = AggregatedStats;
   type Error = anyhow::Error;
