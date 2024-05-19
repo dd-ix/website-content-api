@@ -50,14 +50,6 @@ pub(crate) struct ListmonkUserCreateResponse {
   data: ListmonkUser,
 }
 
-#[derive(Debug, Clone, Serialize)]
-pub(crate) struct ListmonkAddSubscribers {
-  ids: Vec<i32>,
-  action: String,
-  target_list_ids: Vec<i32>,
-  status: String,
-}
-
 #[derive(Debug, Clone)]
 pub enum MailingListsError {
   InvalidMailingListId,
@@ -96,17 +88,6 @@ impl ListmonkCreateSubscriber {
       name: "NewsSubscriber".to_string(),
       status: "enabled".to_string(),
       lists,
-    }
-  }
-}
-
-impl ListmonkAddSubscribers {
-  fn load(subscriber: i32, desired_list: i32) -> ListmonkAddSubscribers {
-    ListmonkAddSubscribers {
-      ids: vec![subscriber],
-      action: "add".to_string(),
-      target_list_ids: vec![desired_list],
-      status: "unconfirmed".to_string(),
     }
   }
 }

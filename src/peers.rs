@@ -1,15 +1,10 @@
 use std::collections::HashMap;
-use std::ops::Deref;
-use std::path::PathBuf;
-use std::sync::atomic::AtomicBool;
-use std::sync::atomic::Ordering;
+use std::path::Path;
 use std::sync::Arc;
 
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
-use time::{Duration, OffsetDateTime};
-use tokio::sync::RwLock;
-use tracing::{error, info};
+use tracing::info;
 use url::Url;
 
 use crate::cache::Cache;
@@ -17,28 +12,14 @@ use crate::cache::Updater;
 
 // https://github.com/euro-ix/json-schemas/wiki/Schema-Field-Entries-Members#schema-field-entries---members
 
-const MAX_AGE: Duration = Duration::hours(1);
-
 #[derive(Deserialize, PartialEq, Clone)]
 enum EuroIXMemberType {
   #[serde(rename = "peering")]
   Peering,
   #[serde(rename = "ixp")]
-  IXP,
+  Ixp,
   #[serde(rename = "other")]
   Other,
-}
-
-#[derive(Deserialize, Serialize, Clone)]
-enum PeeringPolicy {
-  #[serde(rename = "open")]
-  Open,
-  #[serde(rename = "selective")]
-  Selective,
-  #[serde(rename = "case-by-case")]
-  CaseByCase,
-  #[serde(rename = "mandatory")]
-  Mandatory,
 }
 
 #[derive(Deserialize, Clone)]
@@ -64,7 +45,6 @@ struct EuroIXMemberScheme {
   member_type: EuroIXMemberType,
   name: String,
   url: Url,
-  peering_policy: PeeringPolicy,
   connection_list: Vec<EuroIXConnection>,
 }
 
@@ -132,7 +112,7 @@ impl Updater for PeersUpdater {
     let mut peers: Vec<FoundationEntity> = api_result
       .member_list
       .into_iter()
-      .filter(|peer| peer.member_type != EuroIXMemberType::IXP)
+      .filter(|peer| peer.member_type != EuroIXMemberType::Ixp)
       .map(|value| {
         let is_supporter = self.yaml_file.supporting_peers.contains(&value.asnum);
         let mut does_v4 = false;
@@ -197,7 +177,7 @@ impl Updater for PeersUpdater {
 }
 
 impl NetworkService {
-  pub(crate) async fn new(base_path: &PathBuf, ixp_manager_url: Url) -> anyhow::Result<Self> {
+  pub(crate) async fn new(base_path: &Path, ixp_manager_url: Url) -> anyhow::Result<Self> {
     let serialized_supporter = tokio::fs::read_to_string(base_path.join("supporter.yaml")).await?;
     let yaml_file = serde_yaml::from_str(&serialized_supporter)?;
 
