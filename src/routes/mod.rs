@@ -50,8 +50,8 @@ pub(crate) fn route(content_paths: &ContentPaths) -> Router<FoundationState> {
     .route("/team/:lang", get(get_team))
     .nest_service("/team/assets", ServeDir::new(&content_paths.team))
     .route("/mailing_lists/:list", post(add_subscriber))
-    .route("/stats/traffic", get(get_traffic_stats))
-    .route("/stats/as112", get(get_as112_stats))
+    .route("/stats/traffic/:selection", get(get_traffic_stats))
+    .route("/stats/as112/:selection", get(get_as112_stats))
     .route("/peers", get(get_peers_and_supporter))
     .route("/bird", get(get_bird))
 }

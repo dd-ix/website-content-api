@@ -5,10 +5,51 @@ use anyhow::anyhow;
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
 use time::{Duration, OffsetDateTime};
-use tokio::try_join;
 use url::Url;
 
 use crate::cache::{Cache, Updater};
+
+#[derive(Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub(crate) enum TimeSelection {
+  LastTwoDays,
+  LastWeek,
+  LastMonth,
+  LastThreeMonths,
+  LastYear,
+}
+
+impl From<TimeSelection> for Duration {
+  fn from(value: TimeSelection) -> Self {
+    match value {
+      TimeSelection::LastTwoDays => Duration::days(2),
+      TimeSelection::LastWeek => Duration::weeks(1),
+      TimeSelection::LastMonth => Duration::days(30),
+      TimeSelection::LastThreeMonths => Duration::days(90),
+      TimeSelection::LastYear => Duration::days(365),
+    }
+  }
+}
+
+struct TimeSelectionStore<T> {
+  two_days: T,
+  week: T,
+  month: T,
+  three_months: T,
+  year: T,
+}
+
+impl<T> TimeSelectionStore<T> {
+  pub(crate) fn get(&self, selection: TimeSelection) -> &T {
+    match selection {
+      TimeSelection::LastTwoDays => &self.two_days,
+      TimeSelection::LastWeek => &self.week,
+      TimeSelection::LastMonth => &self.month,
+      TimeSelection::LastThreeMonths => &self.three_months,
+      TimeSelection::LastYear => &self.year,
+    }
+  }
+}
 
 #[derive(Serialize)]
 struct PrometheusQuery {
@@ -37,7 +78,7 @@ struct PrometheusMetrics {
 }
 
 #[derive(Serialize)]
-struct Series {
+pub(crate) struct Series {
   #[serde(with = "time::serde::rfc3339")]
   start: OffsetDateTime,
   #[serde(with = "time::serde::rfc3339")]
@@ -45,47 +86,34 @@ struct Series {
   data: Vec<(f64, f64)>,
 }
 
-#[derive(Serialize)]
-pub(crate) struct AggregatedStats {
-  two_days: Series,
-  seven_days: Series,
-  month: Series,
-}
-
 #[derive(Clone)]
 pub(crate) struct Stats {
-  traffic: Arc<Cache<TrafficUpdater>>,
-  as112: Arc<Cache<As112Updater>>,
+  traffic: Arc<TimeSelectionStore<Cache<TrafficUpdater>>>,
+  as112: Arc<TimeSelectionStore<Cache<As112Updater>>>,
 }
 
 struct TrafficUpdater {
   client: Client,
   prometheus_url: Url,
+  selection: Duration,
 }
 
 #[async_trait::async_trait]
 impl Updater for TrafficUpdater {
-  type Output = AggregatedStats;
+  type Output = Series;
   type Error = anyhow::Error;
 
   async fn update(&self) -> Result<Self::Output, Self::Error> {
     let now = OffsetDateTime::now_utc();
 
-    let (two_days, seven_days, month) = try_join!(
-      self.query_stats(OffsetDateTime::now_utc() - Duration::days(2), now, 255.0),
-      self.query_stats(OffsetDateTime::now_utc() - Duration::days(7), now, 255.0),
-      self.query_stats(OffsetDateTime::now_utc() - Duration::days(30), now, 255.0),
-    )?;
+    let data = self
+      .query_stats(OffsetDateTime::now_utc() - self.selection, now, 255.0)
+      .await?;
 
-    let metrics = AggregatedStats {
-      two_days,
-      seven_days,
-      month,
-    };
-
-    Ok(metrics)
+    Ok(data)
   }
 }
+
 impl TrafficUpdater {
   async fn query_stats(
     &self,
@@ -128,29 +156,22 @@ impl TrafficUpdater {
 struct As112Updater {
   client: Client,
   prometheus_url: Url,
+  selection: Duration,
 }
 
 #[async_trait::async_trait]
 impl Updater for As112Updater {
-  type Output = AggregatedStats;
+  type Output = Series;
   type Error = anyhow::Error;
 
   async fn update(&self) -> Result<Self::Output, Self::Error> {
     let now = OffsetDateTime::now_utc();
 
-    let (two_days, seven_days, month) = try_join!(
-      self.query_stats(OffsetDateTime::now_utc() - Duration::days(2), now, 255.0),
-      self.query_stats(OffsetDateTime::now_utc() - Duration::days(7), now, 255.0),
-      self.query_stats(OffsetDateTime::now_utc() - Duration::days(30), now, 255.0),
-    )?;
+    let data = self
+      .query_stats(OffsetDateTime::now_utc() - self.selection, now, 255.0)
+      .await?;
 
-    let metrics = AggregatedStats {
-      two_days,
-      seven_days,
-      month,
-    };
-
-    Ok(metrics)
+    Ok(data)
   }
 }
 impl As112Updater {
@@ -196,27 +217,75 @@ impl Stats {
   pub(crate) fn new(prometheus_url: Url) -> Self {
     let client = Client::new();
 
-    let traffic_updater = TrafficUpdater {
-      client: client.clone(),
-      prometheus_url: prometheus_url.clone(),
-    };
-
-    let as112 = As112Updater {
-      client,
-      prometheus_url,
-    };
-
     Self {
-      traffic: Arc::new(Cache::new(traffic_updater)),
-      as112: Arc::new(Cache::new(as112)),
+      traffic: Arc::new(TimeSelectionStore {
+        two_days: Cache::new(TrafficUpdater {
+          client: client.clone(),
+          prometheus_url: prometheus_url.clone(),
+          selection: TimeSelection::LastTwoDays.into(),
+        }),
+        week: Cache::new(TrafficUpdater {
+          client: client.clone(),
+          prometheus_url: prometheus_url.clone(),
+          selection: TimeSelection::LastWeek.into(),
+        }),
+        month: Cache::new(TrafficUpdater {
+          client: client.clone(),
+          prometheus_url: prometheus_url.clone(),
+          selection: TimeSelection::LastMonth.into(),
+        }),
+        three_months: Cache::new(TrafficUpdater {
+          client: client.clone(),
+          prometheus_url: prometheus_url.clone(),
+          selection: TimeSelection::LastThreeMonths.into(),
+        }),
+        year: Cache::new(TrafficUpdater {
+          client: client.clone(),
+          prometheus_url: prometheus_url.clone(),
+          selection: TimeSelection::LastYear.into(),
+        }),
+      }),
+      as112: Arc::new(TimeSelectionStore {
+        two_days: Cache::new(As112Updater {
+          client: client.clone(),
+          prometheus_url: prometheus_url.clone(),
+          selection: TimeSelection::LastTwoDays.into(),
+        }),
+        week: Cache::new(As112Updater {
+          client: client.clone(),
+          prometheus_url: prometheus_url.clone(),
+          selection: TimeSelection::LastWeek.into(),
+        }),
+        month: Cache::new(As112Updater {
+          client: client.clone(),
+          prometheus_url: prometheus_url.clone(),
+          selection: TimeSelection::LastMonth.into(),
+        }),
+        three_months: Cache::new(As112Updater {
+          client: client.clone(),
+          prometheus_url: prometheus_url.clone(),
+          selection: TimeSelection::LastThreeMonths.into(),
+        }),
+        year: Cache::new(As112Updater {
+          client: client.clone(),
+          prometheus_url: prometheus_url.clone(),
+          selection: TimeSelection::LastYear.into(),
+        }),
+      }),
     }
   }
 
-  pub(crate) async fn get_traffic_stats(&self) -> anyhow::Result<Arc<AggregatedStats>> {
-    self.traffic.get().await
+  pub(crate) async fn get_traffic_stats(
+    &self,
+    selection: TimeSelection,
+  ) -> anyhow::Result<Arc<Series>> {
+    self.traffic.get(selection).get().await
   }
 
-  pub(crate) async fn get_as112_stats(&self) -> anyhow::Result<Arc<AggregatedStats>> {
-    self.as112.get().await
+  pub(crate) async fn get_as112_stats(
+    &self,
+    selection: TimeSelection,
+  ) -> anyhow::Result<Arc<Series>> {
+    self.as112.get(selection).get().await
   }
 }
