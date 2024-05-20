@@ -1,8 +1,5 @@
-// sum by(type) (increase(knot_query_type_total[$__range]))
+use std::{collections::HashMap, str::FromStr};
 
-use std::str::FromStr;
-
-use anyhow::anyhow;
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
 use time::{Duration, OffsetDateTime};
@@ -35,7 +32,13 @@ struct PrometheusData {
 
 #[derive(Deserialize)]
 struct PrometheusMetrics {
+  metric: PrometheusMetric,
   values: Vec<(f64, String)>,
+}
+
+#[derive(Deserialize)]
+struct PrometheusMetric {
+  r#type: String,
 }
 
 pub(super) struct As112Updater {
@@ -46,7 +49,7 @@ pub(super) struct As112Updater {
 
 #[async_trait::async_trait]
 impl Updater for As112Updater {
-  type Output = Series;
+  type Output = Series<HashMap<String, Vec<(f64, f64)>>>;
   type Error = anyhow::Error;
 
   async fn update(&self) -> Result<Self::Output, Self::Error> {
@@ -73,9 +76,9 @@ impl As112Updater {
     start: OffsetDateTime,
     end: OffsetDateTime,
     points: f64,
-  ) -> anyhow::Result<Series> {
+  ) -> anyhow::Result<Series<HashMap<String, Vec<(f64, f64)>>>> {
     let query = PrometheusQuery {
-      query: "sum(rate(knot_query_type_total[5m]))".to_string(),
+      query: "sum by (type) (rate(knot_query_type_total[5m]))".to_string(),
       start,
       end,
       step: ((end - start) / points).as_seconds_f64(),
@@ -96,12 +99,17 @@ impl As112Updater {
         .data
         .result
         .into_iter()
-        .find(|_| true)
-        .ok_or_else(|| anyhow!("unexpected prometheus response"))?
-        .values
-        .into_iter()
-        .map(|(time, value)| (time, f64::from_str(&value).unwrap()))
-        .collect::<Vec<_>>(),
+        .map(|series| {
+          (
+            series.metric.r#type,
+            series
+              .values
+              .into_iter()
+              .map(|(time, value)| (time, f64::from_str(&value).unwrap()))
+              .collect(),
+          )
+        })
+        .collect(),
     })
   }
 }

@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use std::sync::Arc;
 
 use axum::extract::{Path, State};
@@ -11,7 +12,7 @@ use crate::stats::{Series, TimeSelection};
 pub(super) async fn get_traffic_stats(
   Path(selection): Path<TimeSelection>,
   State(state): State<FoundationState>,
-) -> Result<Json<Arc<Series>>, StatusCode> {
+) -> Result<Json<Arc<Series<Vec<(f64, f64)>>>>, StatusCode> {
   match state.stats.get_traffic_stats(selection).await {
     Ok(stats) => Ok(Json(stats)),
     Err(err) => {
@@ -24,7 +25,7 @@ pub(super) async fn get_traffic_stats(
 pub(super) async fn get_as112_stats(
   Path(selection): Path<TimeSelection>,
   State(state): State<FoundationState>,
-) -> Result<Json<Arc<Series>>, StatusCode> {
+) -> Result<Json<Arc<Series<HashMap<String, Vec<(f64, f64)>>>>>, StatusCode> {
   match state.stats.get_as112_stats(selection).await {
     Ok(stats) => Ok(Json(stats)),
     Err(err) => {

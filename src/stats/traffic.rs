@@ -44,7 +44,7 @@ pub(super) struct TrafficUpdater {
 
 #[async_trait::async_trait]
 impl Updater for TrafficUpdater {
-  type Output = Series;
+  type Output = Series<Vec<(f64, f64)>>;
   type Error = anyhow::Error;
 
   async fn update(&self) -> Result<Self::Output, Self::Error> {
@@ -72,7 +72,7 @@ impl TrafficUpdater {
     start: OffsetDateTime,
     end: OffsetDateTime,
     points: f64,
-  ) -> anyhow::Result<Series> {
+  ) -> anyhow::Result<Series<Vec<(f64, f64)>>> {
     let query = PrometheusQuery {
       query: "sum(rate(sflow_router_bytes[5m]))*8".to_string(),
       start,
@@ -100,7 +100,7 @@ impl TrafficUpdater {
         .values
         .into_iter()
         .map(|(time, value)| (time, f64::from_str(&value).unwrap()))
-        .collect::<Vec<_>>(),
+        .collect(),
     })
   }
 }

@@ -1,7 +1,7 @@
 mod as112;
 mod traffic;
 
-use std::sync::Arc;
+use std::{collections::HashMap, sync::Arc};
 
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
@@ -43,12 +43,12 @@ struct TimeSelectionStore<T> {
 }
 
 #[derive(Serialize)]
-pub(crate) struct Series {
+pub(crate) struct Series<T> {
   #[serde(with = "time::serde::rfc3339")]
   start: OffsetDateTime,
   #[serde(with = "time::serde::rfc3339")]
   end: OffsetDateTime,
-  data: Vec<(f64, f64)>,
+  data: T,
 }
 
 impl<T> TimeSelectionStore<T> {
@@ -68,6 +68,7 @@ pub(crate) struct Stats {
   traffic: Arc<TimeSelectionStore<Cache<TrafficUpdater>>>,
   as112: Arc<TimeSelectionStore<Cache<As112Updater>>>,
 }
+
 impl Stats {
   pub(crate) fn new(prometheus_url: Url) -> Self {
     let client = Client::new();
@@ -133,14 +134,14 @@ impl Stats {
   pub(crate) async fn get_traffic_stats(
     &self,
     selection: TimeSelection,
-  ) -> anyhow::Result<Arc<Series>> {
+  ) -> anyhow::Result<Arc<Series<Vec<(f64, f64)>>>> {
     self.traffic.get(selection).get().await
   }
 
   pub(crate) async fn get_as112_stats(
     &self,
     selection: TimeSelection,
-  ) -> anyhow::Result<Arc<Series>> {
+  ) -> anyhow::Result<Arc<Series<HashMap<String, Vec<(f64, f64)>>>>> {
     self.as112.get(selection).get().await
   }
 }
