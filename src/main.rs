@@ -9,8 +9,9 @@ use tracing_subscriber::FmtSubscriber;
 use crate::args::Args;
 use crate::bird::Bird;
 use crate::documents::Documents;
+use crate::events::Events;
 use crate::lists::MailingLists;
-use crate::news::News;
+use crate::news::Blog;
 use crate::peers::NetworkService;
 use crate::routes::{route, ContentPaths};
 use crate::state::FoundationState;
@@ -31,6 +32,7 @@ mod state;
 mod stats;
 mod team;
 mod text_blocks;
+mod events;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
@@ -52,7 +54,7 @@ async fn main() -> anyhow::Result<()> {
   ));
 
   let state = FoundationState {
-    news: News::load(&args.content_directory.join("news")).await?,
+    news: Blog::load(&args.content_directory.join("news")).await?,
     text_blocks: TextBlocks::load(&args.content_directory.join("text_blocks"), &args.base_url)
       .await?,
     documents: Documents::load(&args.content_directory.join("documents")).await?,
@@ -71,6 +73,7 @@ async fn main() -> anyhow::Result<()> {
     )
     .await?,
     bird: Bird::new(args.bird_html).await?,
+    events: Events::load(&args.content_directory.join("events")).await?
   };
 
   let cors = CorsLayer::new()

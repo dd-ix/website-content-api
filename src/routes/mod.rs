@@ -6,6 +6,7 @@ use axum::Router;
 use tower_http::services::ServeDir;
 
 use crate::routes::documents::list_documents;
+use crate::routes::events::{list_all_events, list_future_events};
 use crate::routes::lists::add_subscriber;
 use crate::routes::news::{find_keywords, find_post, list_posts};
 use crate::routes::peers::get_peers_and_supporter;
@@ -23,6 +24,7 @@ mod peers;
 mod stats;
 mod team;
 mod text_blocks;
+mod events;
 
 pub(crate) struct ContentPaths {
   pub(crate) news: PathBuf,
@@ -36,6 +38,8 @@ pub(crate) fn route(content_paths: &ContentPaths) -> Router<FoundationState> {
     .route("/news/:lang", get(list_posts))
     .route("/news/:lang/:slug", get(find_post))
     .route("/news/keywords", get(find_keywords))
+    .route("/events/:lang/all", get(list_all_events))
+    .route("/events/:lang/future", get(list_future_events))
     .route("/text-blocks/:lang/:slug", get(find_text_block))
     .nest_service(
       "/text-blocks/assets",
