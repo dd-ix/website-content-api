@@ -11,7 +11,7 @@ struct MyDate(Date);
 #[derive(Debug, Clone)]
 pub(crate) struct Events {
   events: Arc<Vec<Arc<Event>>>,
-  short_event: Arc<Vec<Arc<ShortEvent>>>,
+  short_event: Arc<Vec<Arc<SmallEvent>>>,
 }
 
 #[derive(Deserialize)]
@@ -41,7 +41,7 @@ pub(crate) struct Event {
 }
 
 #[derive(Serialize, Debug, Clone)]
-pub(crate) struct ShortEvent {
+pub(crate) struct SmallEvent {
   slug: String,
   lang: Language,
   idx: u32,
@@ -93,7 +93,7 @@ impl Events {
         body: markdown::to_html(body),
       });
 
-      let short_event_ptr = Arc::new(ShortEvent {
+      let short_event_ptr = Arc::new(SmallEvent {
         slug: slug.to_string(),
         lang,
         idx,
@@ -118,7 +118,7 @@ impl Events {
     })
   }
 
-  pub(crate) async fn get_future_events(&self, lang: &Language) -> Vec<Arc<ShortEvent>> {
+  pub(crate) async fn get_future_events(&self, lang: &Language) -> Vec<Arc<SmallEvent>> {
     let current_date_time = OffsetDateTime::now_utc();
 
     self
@@ -129,7 +129,7 @@ impl Events {
       .collect()
   }
 
-  pub(crate) async fn get_all_events(&self, lang: &Language) -> Vec<Arc<ShortEvent>> {
+  pub(crate) async fn get_all_events(&self, lang: &Language) -> Vec<Arc<SmallEvent>> {
     self
       .short_event
       .iter()
