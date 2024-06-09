@@ -8,7 +8,7 @@ use tower_http::services::ServeDir;
 use crate::routes::documents::list_documents;
 use crate::routes::events::{find_event, list_all_events, list_future_events};
 use crate::routes::lists::add_subscriber;
-use crate::routes::news::{find_keywords, find_post, list_posts};
+use crate::routes::blog::{find_keywords, find_post, list_posts};
 use crate::routes::peers::get_peers_and_supporter;
 use crate::routes::team::get_team;
 use crate::routes::text_blocks::find_text_block;
@@ -20,14 +20,14 @@ mod bird;
 mod documents;
 mod events;
 mod lists;
-mod news;
+mod blog;
 mod peers;
 mod stats;
 mod team;
 mod text_blocks;
 
 pub(crate) struct ContentPaths {
-  pub(crate) news: PathBuf,
+  pub(crate) blog: PathBuf,
   pub(crate) text_blocks: PathBuf,
   pub(crate) document: PathBuf,
   pub(crate) team: PathBuf,
@@ -46,7 +46,7 @@ pub(crate) fn route(content_paths: &ContentPaths) -> Router<FoundationState> {
       "/text-blocks/assets",
       ServeDir::new(&content_paths.text_blocks),
     )
-    .nest_service("/news/assets", ServeDir::new(&content_paths.news))
+    .nest_service("/blog/assets", ServeDir::new(&content_paths.blog))
     .route("/documents/:lang", get(list_documents))
     .nest_service(
       "/documents/download",

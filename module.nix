@@ -124,8 +124,8 @@ in
             access_log off;
           '';
         };
-        "/news/assets/" = {
-          alias = "${cfg.content}/content/news/assets/";
+        "/blog/assets/" = {
+          alias = "${cfg.content}/content/blog/assets/";
           tryFiles = "$uri $uri/ =404";
           extraConfig = ''
             expires max;

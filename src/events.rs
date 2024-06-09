@@ -77,7 +77,7 @@ impl Events {
         continue;
       }
 
-      let (idx, lang, slug) = crate::news::parse_file_name(file_name)?;
+      let (idx, lang, slug) = crate::blog::parse_file_name(file_name)?;
 
       let event_ptr = Arc::new(Event {
         slug: slug.to_string(),

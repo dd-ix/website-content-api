@@ -2,7 +2,7 @@ use crate::bird::Bird;
 use crate::documents::Documents;
 use crate::events::Events;
 use crate::lists::MailingLists;
-use crate::news::Blog;
+use crate::blog::Blog;
 use crate::peers::NetworkService;
 use crate::stats::Stats;
 use crate::team::Team;

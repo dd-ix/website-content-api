@@ -7,7 +7,7 @@ use axum::Json;
 use serde::{Deserialize, Deserializer};
 
 use crate::lang::Language;
-use crate::news::{Post, SmallPost};
+use crate::blog::{Post, SmallPost};
 use crate::state::FoundationState;
 
 #[derive(Deserialize)]
