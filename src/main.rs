@@ -23,6 +23,7 @@ mod args;
 mod bird;
 mod cache;
 mod documents;
+mod events;
 mod lang;
 mod lists;
 mod news;
@@ -32,7 +33,6 @@ mod state;
 mod stats;
 mod team;
 mod text_blocks;
-mod events;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
@@ -54,7 +54,7 @@ async fn main() -> anyhow::Result<()> {
   ));
 
   let state = FoundationState {
-    news: Blog::load(&args.content_directory.join("news")).await?,
+    blog: Blog::load(&args.content_directory.join("news")).await?,
     text_blocks: TextBlocks::load(&args.content_directory.join("text_blocks"), &args.base_url)
       .await?,
     documents: Documents::load(&args.content_directory.join("documents")).await?,
@@ -73,7 +73,7 @@ async fn main() -> anyhow::Result<()> {
     )
     .await?,
     bird: Bird::new(args.bird_html).await?,
-    events: Events::load(&args.content_directory.join("events")).await?
+    events: Events::load(&args.content_directory.join("events")).await?,
   };
 
   let cors = CorsLayer::new()

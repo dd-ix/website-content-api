@@ -37,8 +37,8 @@ pub(crate) async fn list_posts(
   Query(query): Query<ListQuery>,
 ) -> Json<Vec<Arc<SmallPost>>> {
   match query.keywords {
-    None => Json(state.news.posts(lang)),
-    Some(keywords) => Json(state.news.search_by_keywords(lang, &keywords.0)),
+    None => Json(state.blog.posts(lang)),
+    Some(keywords) => Json(state.blog.search_by_keywords(lang, &keywords.0)),
   }
 }
 
@@ -47,12 +47,12 @@ pub(crate) async fn find_post(
   Path((lang, slug)): Path<(Language, String)>,
 ) -> Result<Json<Arc<Post>>, StatusCode> {
   state
-    .news
+    .blog
     .find_post(lang, &slug)
     .map(Json)
     .ok_or(StatusCode::NOT_FOUND)
 }
 
 pub(crate) async fn find_keywords(State(state): State<FoundationState>) -> Json<HashSet<String>> {
-  Json(state.news.keywords())
+  Json(state.blog.keywords())
 }
