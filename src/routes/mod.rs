@@ -6,8 +6,9 @@ use axum::Router;
 use tower_http::services::ServeDir;
 
 use crate::routes::documents::list_documents;
+use crate::routes::events::{find_event, list_all_events, list_future_events};
 use crate::routes::lists::add_subscriber;
-use crate::routes::news::{find_keywords, find_post, list_posts};
+use crate::routes::blog::{find_keywords, find_post, list_posts};
 use crate::routes::peers::get_peers_and_supporter;
 use crate::routes::team::get_team;
 use crate::routes::text_blocks::find_text_block;
@@ -17,15 +18,16 @@ use self::stats::{get_as112_stats, get_traffic_stats};
 
 mod bird;
 mod documents;
+mod events;
 mod lists;
-mod news;
+mod blog;
 mod peers;
 mod stats;
 mod team;
 mod text_blocks;
 
 pub(crate) struct ContentPaths {
-  pub(crate) news: PathBuf,
+  pub(crate) blog: PathBuf,
   pub(crate) text_blocks: PathBuf,
   pub(crate) document: PathBuf,
   pub(crate) team: PathBuf,
@@ -33,15 +35,18 @@ pub(crate) struct ContentPaths {
 
 pub(crate) fn route(content_paths: &ContentPaths) -> Router<FoundationState> {
   Router::new()
-    .route("/news/:lang", get(list_posts))
-    .route("/news/:lang/:slug", get(find_post))
-    .route("/news/keywords", get(find_keywords))
+    .route("/blog/:lang", get(list_posts))
+    .route("/blog/:lang/:slug", get(find_post))
+    .route("/blog/keywords", get(find_keywords))
+    .route("/events/:lang/all", get(list_all_events))
+    .route("/events/:lang/upcoming", get(list_future_events))
+    .route("/events/:lang/:slug", get(find_event))
     .route("/text-blocks/:lang/:slug", get(find_text_block))
     .nest_service(
       "/text-blocks/assets",
       ServeDir::new(&content_paths.text_blocks),
     )
-    .nest_service("/news/assets", ServeDir::new(&content_paths.news))
+    .nest_service("/blog/assets", ServeDir::new(&content_paths.blog))
     .route("/documents/:lang", get(list_documents))
     .nest_service(
       "/documents/download",

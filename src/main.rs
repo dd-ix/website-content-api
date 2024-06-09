@@ -9,8 +9,9 @@ use tracing_subscriber::FmtSubscriber;
 use crate::args::Args;
 use crate::bird::Bird;
 use crate::documents::Documents;
+use crate::events::Events;
 use crate::lists::MailingLists;
-use crate::news::News;
+use crate::blog::Blog;
 use crate::peers::NetworkService;
 use crate::routes::{route, ContentPaths};
 use crate::state::FoundationState;
@@ -22,9 +23,10 @@ mod args;
 mod bird;
 mod cache;
 mod documents;
+mod events;
 mod lang;
 mod lists;
-mod news;
+mod blog;
 mod peers;
 mod routes;
 mod state;
@@ -52,7 +54,7 @@ async fn main() -> anyhow::Result<()> {
   ));
 
   let state = FoundationState {
-    news: News::load(&args.content_directory.join("news")).await?,
+    blog: Blog::load(&args.content_directory.join("blog")).await?,
     text_blocks: TextBlocks::load(&args.content_directory.join("text_blocks"), &args.base_url)
       .await?,
     documents: Documents::load(&args.content_directory.join("documents")).await?,
@@ -71,6 +73,7 @@ async fn main() -> anyhow::Result<()> {
     )
     .await?,
     bird: Bird::new(args.bird_html).await?,
+    events: Events::load(&args.content_directory.join("events")).await?,
   };
 
   let cors = CorsLayer::new()
@@ -79,7 +82,7 @@ async fn main() -> anyhow::Result<()> {
     .allow_origin(Any);
 
   let router = route(&ContentPaths {
-    news: args.content_directory.join("news/assets"),
+    blog: args.content_directory.join("blog/assets"),
     text_blocks: args.content_directory.join("text_blocks/assets"),
     document: args.content_directory.join("documents/download"),
     team: args.content_directory.join("team/assets"),

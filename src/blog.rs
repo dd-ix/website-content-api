@@ -13,7 +13,7 @@ use crate::lang::Language;
 struct MyDate(Date);
 
 #[derive(Debug, Clone)]
-pub(crate) struct News {
+pub(crate) struct Blog {
   posts: Arc<Vec<Arc<Post>>>,
   small_posts: Arc<Vec<Arc<SmallPost>>>,
 }
@@ -58,7 +58,7 @@ pub(crate) struct SmallPost {
   image: Option<String>,
 }
 
-impl News {
+impl Blog {
   pub(crate) async fn load(directory: &Path) -> anyhow::Result<Self> {
     let mut posts = Vec::new();
 
@@ -117,7 +117,7 @@ impl News {
       })
       .collect();
 
-    Ok(News {
+    Ok(Blog {
       posts: Arc::new(posts),
       small_posts: Arc::new(small_posts),
     })
@@ -198,7 +198,7 @@ impl News {
   }
 }
 
-fn parse_file_name(file_name: &str) -> anyhow::Result<(u32, Language, &str)> {
+pub(crate) fn parse_file_name(file_name: &str) -> anyhow::Result<(u32, Language, &str)> {
   let mut split = file_name.split('.');
 
   let idx = split
