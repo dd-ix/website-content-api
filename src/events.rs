@@ -17,7 +17,9 @@ pub(crate) struct Events {
 #[derive(Deserialize)]
 pub(crate) struct EventMeta {
   title: String,
+  #[serde(deserialize_with = "time::serde::iso8601::deserialize")]
   start_time: OffsetDateTime,
+  #[serde(deserialize_with = "time::serde::iso8601::deserialize")]
   end_time: OffsetDateTime,
   location: String,
   description: String,
@@ -31,7 +33,9 @@ pub(crate) struct Event {
   lang: Language,
   idx: u32,
   title: String,
+  #[serde(serialize_with = "time::serde::iso8601::serialize")]
   start_time: OffsetDateTime,
+  #[serde(serialize_with = "time::serde::iso8601::serialize")]
   end_time: OffsetDateTime,
   location: String,
   description: String,
@@ -46,7 +50,9 @@ pub(crate) struct SmallEvent {
   lang: Language,
   idx: u32,
   title: String,
+  #[serde(serialize_with = "time::serde::iso8601::serialize")]
   start_time: OffsetDateTime,
+  #[serde(serialize_with = "time::serde::iso8601::serialize")]
   end_time: OffsetDateTime,
   location: String,
   description: String,
