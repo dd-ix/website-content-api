@@ -116,7 +116,7 @@ impl EventHandler {
       short_events.push(short_event_ptr);
     }
 
-    events.sort_by(|a, b| b.start_time.cmp(&a.start_time));
+    events.sort_by(|a, b| a.start_time.cmp(&b.start_time));
 
     Ok(Self {
       events: Arc::new(events),
