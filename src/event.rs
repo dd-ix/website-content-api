@@ -116,6 +116,7 @@ impl EventHandler {
       short_events.push(short_event_ptr);
     }
 
+    short_events.sort_by(|a, b| a.start_time.cmp(&b.start_time));
     events.sort_by(|a, b| a.start_time.cmp(&b.start_time));
 
     Ok(Self {
