@@ -132,6 +132,14 @@ in
             access_log off;
           '';
         };
+        "/event/assets/" = {
+          alias = "${cfg.content}/content/event/assets/";
+          tryFiles = "$uri $uri/ =404";
+          extraConfig = ''
+            expires max;
+            access_log off;
+          '';
+        };
         "/team/assets/" = {
           alias = "${cfg.content}/content/team/assets/";
           tryFiles = "$uri $uri/ =404";

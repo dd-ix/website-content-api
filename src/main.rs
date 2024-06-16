@@ -83,6 +83,7 @@ async fn main() -> anyhow::Result<()> {
 
   let router = route(&ContentPaths {
     blog: args.content_directory.join("blog/assets"),
+    event: args.content_directory.join("event/assets"),
     text_blocks: args.content_directory.join("text_blocks/assets"),
     document: args.content_directory.join("documents/download"),
     team: args.content_directory.join("team/assets"),

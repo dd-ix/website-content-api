@@ -28,6 +28,7 @@ mod text_blocks;
 
 pub(crate) struct ContentPaths {
   pub(crate) blog: PathBuf,
+  pub(crate) event: PathBuf,
   pub(crate) text_blocks: PathBuf,
   pub(crate) document: PathBuf,
   pub(crate) team: PathBuf,
@@ -47,6 +48,7 @@ pub(crate) fn route(content_paths: &ContentPaths) -> Router<FoundationState> {
       ServeDir::new(&content_paths.text_blocks),
     )
     .nest_service("/blog/assets", ServeDir::new(&content_paths.blog))
+    .nest_service("/event/assets", ServeDir::new(&content_paths.event))
     .route("/documents/:lang", get(list_documents))
     .nest_service(
       "/documents/download",
