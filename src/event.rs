@@ -9,7 +9,7 @@ use time::{Date, OffsetDateTime};
 struct MyDate(Date);
 
 #[derive(Debug, Clone)]
-pub(crate) struct Events {
+pub(crate) struct EventHandler {
   events: Arc<Vec<Arc<Event>>>,
   short_event: Arc<Vec<Arc<SmallEvent>>>,
 }
@@ -60,7 +60,7 @@ pub(crate) struct SmallEvent {
   image: Option<String>,
 }
 
-impl Events {
+impl EventHandler {
   pub(crate) async fn load(directory: &Path) -> anyhow::Result<Self> {
     let mut events = Vec::new();
     let mut short_events = Vec::new();

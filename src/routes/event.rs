@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use crate::events::{Event, SmallEvent};
+use crate::event::{Event, SmallEvent};
 use axum::extract::{Path, State};
 use axum::Json;
 

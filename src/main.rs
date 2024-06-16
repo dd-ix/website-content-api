@@ -9,7 +9,7 @@ use tracing_subscriber::FmtSubscriber;
 use crate::args::Args;
 use crate::bird::Bird;
 use crate::documents::Documents;
-use crate::events::Events;
+use crate::event::EventHandler;
 use crate::lists::MailingLists;
 use crate::blog::Blog;
 use crate::peers::NetworkService;
@@ -23,7 +23,7 @@ mod args;
 mod bird;
 mod cache;
 mod documents;
-mod events;
+mod event;
 mod lang;
 mod lists;
 mod blog;
@@ -73,7 +73,7 @@ async fn main() -> anyhow::Result<()> {
     )
     .await?,
     bird: Bird::new(args.bird_html).await?,
-    events: Events::load(&args.content_directory.join("events")).await?,
+    events: EventHandler::load(&args.content_directory.join("event")).await?,
   };
 
   let cors = CorsLayer::new()

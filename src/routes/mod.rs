@@ -6,7 +6,7 @@ use axum::Router;
 use tower_http::services::ServeDir;
 
 use crate::routes::documents::list_documents;
-use crate::routes::events::{find_event, list_all_events, list_future_events};
+use crate::routes::event::{find_event, list_all_events, list_future_events};
 use crate::routes::lists::add_subscriber;
 use crate::routes::blog::{find_keywords, find_post, list_posts};
 use crate::routes::peers::get_peers_and_supporter;
@@ -18,7 +18,7 @@ use self::stats::{get_as112_stats, get_traffic_stats};
 
 mod bird;
 mod documents;
-mod events;
+mod event;
 mod lists;
 mod blog;
 mod peers;
@@ -39,9 +39,9 @@ pub(crate) fn route(content_paths: &ContentPaths) -> Router<FoundationState> {
     .route("/blog/:lang", get(list_posts))
     .route("/blog/:lang/:slug", get(find_post))
     .route("/blog/keywords", get(find_keywords))
-    .route("/events/:lang/all", get(list_all_events))
-    .route("/events/:lang/upcoming", get(list_future_events))
-    .route("/events/:lang/:slug", get(find_event))
+    .route("/event/:lang/all", get(list_all_events))
+    .route("/event/:lang/upcoming", get(list_future_events))
+    .route("/event/:lang/:slug", get(find_event))
     .route("/text-blocks/:lang/:slug", get(find_text_block))
     .nest_service(
       "/text-blocks/assets",

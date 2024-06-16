@@ -1,6 +1,6 @@
 use crate::bird::Bird;
 use crate::documents::Documents;
-use crate::events::Events;
+use crate::event::EventHandler;
 use crate::lists::MailingLists;
 use crate::blog::Blog;
 use crate::peers::NetworkService;
@@ -18,5 +18,5 @@ pub(crate) struct FoundationState {
   pub(crate) stats: Stats,
   pub(crate) peers: NetworkService,
   pub(crate) bird: Bird,
-  pub(crate) events: Events,
+  pub(crate) events: EventHandler,
 }
