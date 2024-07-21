@@ -1,8 +1,8 @@
 use crate::bird::Bird;
+use crate::blog::Blog;
 use crate::documents::Documents;
 use crate::event::EventHandler;
 use crate::lists::MailingLists;
-use crate::blog::Blog;
 use crate::peers::NetworkService;
 use crate::stats::Stats;
 use crate::team::Team;

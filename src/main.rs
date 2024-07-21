@@ -8,10 +8,10 @@ use tracing_subscriber::FmtSubscriber;
 
 use crate::args::Args;
 use crate::bird::Bird;
+use crate::blog::Blog;
 use crate::documents::Documents;
 use crate::event::EventHandler;
 use crate::lists::MailingLists;
-use crate::blog::Blog;
 use crate::peers::NetworkService;
 use crate::routes::{route, ContentPaths};
 use crate::state::FoundationState;
@@ -21,12 +21,12 @@ use crate::text_blocks::TextBlocks;
 
 mod args;
 mod bird;
+mod blog;
 mod cache;
 mod documents;
 mod event;
 mod lang;
 mod lists;
-mod blog;
 mod peers;
 mod routes;
 mod state;
