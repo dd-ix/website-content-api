@@ -29,7 +29,6 @@ pub(crate) struct WrittenPostMeta {
   keywords: Vec<String>,
   authors: Vec<String>,
   image: Option<String>,
-  format: Option<String>,
 }
 
 #[derive(Serialize, Debug, Clone)]
@@ -79,15 +78,16 @@ impl Blog {
 
       let meta: WrittenPostMeta = serde_yaml::from_str(meta)?;
       let file_name = path.file_name().unwrap().to_str().unwrap();
+
       if file_name.starts_with('_') {
         continue;
       }
 
+      let is_rst_file = file_name.ends_with(".rst");
+
       let (idx, lang, slug) = parse_file_name(file_name)?;
 
-      let body = if meta.format.is_none() || meta.format == Option::Some("md".to_string()) {
-        markdown::to_html(text)
-      } else {
+      let body = if is_rst_file {
         let mut buffer: Vec<u8> = Vec::new();
         let parsed_rst = parse(&text)
           .map_err(|e| {
@@ -103,6 +103,8 @@ impl Blog {
           })
           .unwrap_or_default();
         String::from_utf8(buffer)?
+      } else {
+        markdown::to_html(text)
       };
 
       posts.push(Arc::new(Post {
