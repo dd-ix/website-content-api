@@ -3,6 +3,8 @@ use std::path::Path;
 use std::sync::Arc;
 
 use anyhow::anyhow;
+use rst_parser::parse;
+use rst_renderer::render_html;
 use serde::de::Error;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use time::Date;
@@ -72,15 +74,38 @@ impl Blog {
       let content = tokio::fs::read_to_string(path.as_path()).await?;
       let content = content.trim_start();
       let content = content.strip_prefix("---").unwrap();
-      let (meta, body) = content.split_once("---").unwrap();
+      let (meta, text) = content.split_once("---").unwrap();
 
       let meta: WrittenPostMeta = serde_yaml::from_str(meta)?;
       let file_name = path.file_name().unwrap().to_str().unwrap();
+
       if file_name.starts_with('_') {
         continue;
       }
 
+      let is_rst_file = file_name.ends_with(".rst");
+
       let (idx, lang, slug) = parse_file_name(file_name)?;
+
+      let body = if is_rst_file {
+        let mut buffer: Vec<u8> = Vec::new();
+        let parsed_rst = parse(&text)
+          .map_err(|e| {
+            eprintln!("cannot parse rst file {} with error {}", &file_name, e);
+          })
+          .unwrap_or_default();
+        render_html(&parsed_rst, &mut buffer, true)
+          .map_err(|e| {
+            eprintln!(
+              "cannot render rst file to html {} with error {}",
+              &file_name, e
+            );
+          })
+          .unwrap_or_default();
+        String::from_utf8(buffer)?
+      } else {
+        markdown::to_html(text)
+      };
 
       posts.push(Arc::new(Post {
         slug: slug.to_string(),
@@ -93,7 +118,7 @@ impl Blog {
         keywords: meta.keywords,
         authors: meta.authors,
         image: meta.image,
-        body: markdown::to_html(body),
+        body,
       }));
     }
 

@@ -5,10 +5,10 @@ use axum::routing::{get, post};
 use axum::Router;
 use tower_http::services::ServeDir;
 
+use crate::routes::blog::{find_keywords, find_post, list_posts};
 use crate::routes::documents::list_documents;
 use crate::routes::event::{find_event, list_all_events, list_future_events};
 use crate::routes::lists::add_subscriber;
-use crate::routes::blog::{find_keywords, find_post, list_posts};
 use crate::routes::peers::get_peers_and_supporter;
 use crate::routes::team::get_team;
 use crate::routes::text_blocks::find_text_block;
@@ -17,10 +17,10 @@ use crate::state::FoundationState;
 use self::stats::{get_as112_stats, get_traffic_stats};
 
 mod bird;
+mod blog;
 mod documents;
 mod event;
 mod lists;
-mod blog;
 mod peers;
 mod stats;
 mod team;
