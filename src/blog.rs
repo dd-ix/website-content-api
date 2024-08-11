@@ -89,7 +89,7 @@ impl Blog {
 
       let body = if is_rst_file {
         let mut buffer: Vec<u8> = Vec::new();
-        let parsed_rst = parse(&text)
+        let parsed_rst = parse(text)
           .map_err(|e| {
             eprintln!("cannot parse rst file {} with error {}", &file_name, e);
           })

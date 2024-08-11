@@ -32,30 +32,6 @@ pub(crate) struct Args {
 
   #[clap(
     long,
-    env = "WEBSITE_CONTENT_API_LISTMONK_URL",
-    default_value = "http://localhost:8090/"
-  )]
-  pub(crate) listmonk_url: Url,
-
-  #[clap(
-    long,
-    env = "WEBSITE_CONTENT_API_LISTMONK_USER",
-    default_value = "listmonk"
-  )]
-  pub(crate) listmonk_user: String,
-
-  #[clap(
-    long,
-    env = "WEBSITE_CONTENT_API_LISTMONK_PASSWORD_FILE",
-    default_value = "/run/secret/listmonk"
-  )]
-  pub(crate) listmonk_password_file: PathBuf,
-
-  #[clap(long, env = "WEBSITE_CONTENT_API_LISTMONK_LISTS", default_value = "[]")]
-  pub(crate) listmonk_lists: String,
-
-  #[clap(
-    long,
     env = "WEBSITE_CONTENT_API_PROMETHEUS_URL",
     default_value = "https://svc-prom01.dd-ix.net/"
   )]

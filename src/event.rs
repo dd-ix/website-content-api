@@ -3,10 +3,7 @@ use std::sync::Arc;
 
 use crate::lang::Language;
 use serde::{Deserialize, Serialize};
-use time::{Date, OffsetDateTime};
-
-#[derive(Debug, Copy, Clone, PartialEq, Eq)]
-struct MyDate(Date);
+use time::OffsetDateTime;
 
 #[derive(Debug, Clone)]
 pub(crate) struct EventHandler {

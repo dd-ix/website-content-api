@@ -30,42 +30,6 @@ in
         '';
       };
     };
-    listmonk = {
-      host = lib.mkOption {
-        type = lib.types.str;
-        default = "http://127.0.0.1";
-        description = ''
-          At which host is listmonk listening
-        '';
-      };
-      port = lib.mkOption {
-        type = lib.types.port;
-        default = 8081;
-        description = ''
-          At which port is listmonk listening
-        '';
-      };
-      user = lib.mkOption {
-        type = lib.types.str;
-        default = "admin";
-        description = ''
-          username of listmonk user
-        '';
-      };
-      passwordFile = lib.mkOption {
-        type = lib.types.path;
-        description = ''
-          path from where the user password can be read
-        '';
-      };
-      allowed_lists = lib.mkOption {
-        type = lib.types.listOf lib.types.int;
-        default = [ ];
-        description = ''
-          list of allowed mailing list ids
-        '';
-      };
-    };
     logLevel = lib.mkOption {
       type = lib.types.str;
       default = "info";
@@ -96,10 +60,6 @@ in
         WEBSITE_CONTENT_API_LISTEN_ADDR = "${cfg.http.host}:${toString cfg.http.port}";
         WEBSITE_CONTENT_API_CONTENT_DIRECTORY = "${pkgs.website-content}/content/";
         WEBSITE_CONTENT_API_BASE_URL = cfg.url;
-        WEBSITE_CONTENT_API_LISTMONK_URL = "${cfg.listmonk.host}:${toString cfg.listmonk.port}";
-        WEBSITE_CONTENT_API_LISTMONK_USER = cfg.listmonk.user;
-        WEBSITE_CONTENT_API_LISTMONK_PASSWORD_FILE = "%d/listmonk_pw";
-        WEBSITE_CONTENT_API_LISTMONK_LISTS = "${builtins.toJSON cfg.listmonk.allowed_lists}";
         WEBSITE_CONTENT_API_PROMETHEUS_URL = cfg.prometheusUrl;
         WEBSITE_CONTENT_API_IXP_MANAGER_URL = cfg.ixpManagerUrl;
       };

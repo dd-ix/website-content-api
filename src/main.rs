@@ -11,7 +11,6 @@ use crate::bird::Bird;
 use crate::blog::Blog;
 use crate::documents::Documents;
 use crate::event::EventHandler;
-use crate::lists::MailingLists;
 use crate::peers::NetworkService;
 use crate::routes::{route, ContentPaths};
 use crate::state::FoundationState;
@@ -26,7 +25,6 @@ mod cache;
 mod documents;
 mod event;
 mod lang;
-mod lists;
 mod peers;
 mod routes;
 mod state;
@@ -59,13 +57,6 @@ async fn main() -> anyhow::Result<()> {
       .await?,
     documents: Documents::load(&args.content_directory.join("documents")).await?,
     team: Team::load(&args.content_directory.join("team")).await?,
-    lists: MailingLists::load(
-      &args.listmonk_url,
-      &args.listmonk_user,
-      &args.listmonk_password_file,
-      &args.listmonk_lists,
-    )
-    .await?,
     stats: Stats::new(args.prometheus_url),
     peers: NetworkService::new(
       &args.content_directory.join("supporter"),
