@@ -68,7 +68,6 @@ in
         ExecStart = "${pkgs.website-content-api}/bin/foundation";
         DynamicUser = true;
         Restart = "always";
-        LoadCredential = "listmonk_pw:${cfg.listmonk.passwordFile}";
       };
     };
 
