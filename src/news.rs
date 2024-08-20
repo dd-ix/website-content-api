@@ -8,6 +8,7 @@ use rst_renderer::render_html;
 use serde::de::Error;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use time::Date;
+use tracing::info;
 
 use crate::lang::Language;
 
@@ -85,6 +86,7 @@ impl News {
 
       let is_rst_file = file_name.ends_with(".rst");
 
+      info!("reading news post: {} is rst: {}", &file_name, &is_rst_file);
       let (idx, lang, slug) = parse_file_name(file_name)?;
 
       let body = if is_rst_file {
