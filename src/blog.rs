@@ -77,7 +77,7 @@ impl Blog {
       let content = content.strip_prefix("---").unwrap();
       let (meta, text) = content.split_once("---").unwrap();
 
-      let meta: WrittenPostMeta = serde_yaml::from_str(meta)?;
+      let meta: WrittenPostMeta = serde_yaml::from_str(meta).expect("cannot parse header in blog");
       let file_name = path.file_name().unwrap().to_str().unwrap();
 
       if file_name.starts_with('_') {
@@ -87,7 +87,7 @@ impl Blog {
       let is_rst_file = file_name.ends_with(".rst");
 
       info!("reading blog post: {} is rst: {}", &file_name, &is_rst_file);
-      let (idx, lang, slug) = parse_file_name(file_name)?;
+      let (idx, lang, slug) = parse_file_name(file_name).expect("cannot parse file name");
 
       let body = if is_rst_file {
         let mut buffer: Vec<u8> = Vec::new();
