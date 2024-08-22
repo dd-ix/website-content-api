@@ -16,13 +16,13 @@ use crate::lang::Language;
 struct MyDate(Date);
 
 #[derive(Debug, Clone)]
-pub(crate) struct Blog {
+pub(crate) struct News {
   posts: Arc<Vec<Arc<Post>>>,
   small_posts: Arc<Vec<Arc<SmallPost>>>,
 }
 
 #[derive(Deserialize)]
-pub(crate) struct WrittenPostMeta {
+pub(crate) struct WrittenNewsMeta {
   title: String,
   published: MyDate,
   modified: Option<MyDate>,
@@ -61,7 +61,7 @@ pub(crate) struct SmallPost {
   image: Option<String>,
 }
 
-impl Blog {
+impl News {
   pub(crate) async fn load(directory: &Path) -> anyhow::Result<Self> {
     let mut posts = Vec::new();
 
@@ -77,7 +77,7 @@ impl Blog {
       let content = content.strip_prefix("---").unwrap();
       let (meta, text) = content.split_once("---").unwrap();
 
-      let meta: WrittenPostMeta = serde_yaml::from_str(meta).expect("cannot parse header in blog");
+      let meta: WrittenNewsMeta = serde_yaml::from_str(meta)?;
       let file_name = path.file_name().unwrap().to_str().unwrap();
 
       if file_name.starts_with('_') {
@@ -86,8 +86,8 @@ impl Blog {
 
       let is_rst_file = file_name.ends_with(".rst");
 
-      info!("reading blog post: {} is rst: {}", &file_name, &is_rst_file);
-      let (idx, lang, slug) = parse_file_name(file_name).expect("cannot parse file name");
+      info!("reading news post: {} is rst: {}", &file_name, &is_rst_file);
+      let (idx, lang, slug) = parse_file_name(file_name)?;
 
       let body = if is_rst_file {
         let mut buffer: Vec<u8> = Vec::new();
@@ -144,7 +144,7 @@ impl Blog {
       })
       .collect();
 
-    Ok(Blog {
+    Ok(News {
       posts: Arc::new(posts),
       small_posts: Arc::new(small_posts),
     })

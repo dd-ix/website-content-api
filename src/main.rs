@@ -11,6 +11,7 @@ use crate::bird::Bird;
 use crate::blog::Blog;
 use crate::documents::Documents;
 use crate::event::EventHandler;
+use crate::news::News;
 use crate::peers::NetworkService;
 use crate::routes::{route, ContentPaths};
 use crate::state::FoundationState;
@@ -25,6 +26,7 @@ mod cache;
 mod documents;
 mod event;
 mod lang;
+mod news;
 mod peers;
 mod routes;
 mod state;
@@ -53,6 +55,7 @@ async fn main() -> anyhow::Result<()> {
 
   let state = FoundationState {
     blog: Blog::load(&args.content_directory.join("blog")).await?,
+    news: News::load(&args.content_directory.join("news")).await?,
     text_blocks: TextBlocks::load(&args.content_directory.join("text_blocks"), &args.base_url)
       .await?,
     documents: Documents::load(&args.content_directory.join("documents")).await?,
@@ -75,6 +78,7 @@ async fn main() -> anyhow::Result<()> {
   let router = route(&ContentPaths {
     blog: args.content_directory.join("blog/assets"),
     event: args.content_directory.join("event/assets"),
+    news: args.content_directory.join("news/assets"),
     text_blocks: args.content_directory.join("text_blocks/assets"),
     document: args.content_directory.join("documents/download"),
     team: args.content_directory.join("team/assets"),
