@@ -3,6 +3,8 @@ use std::path::Path;
 use std::sync::Arc;
 
 use anyhow::anyhow;
+use asciidork_parser::prelude::Bump;
+use asciidork_parser::Parser;
 use rst_parser::parse;
 use rst_renderer::render_html;
 use serde::de::Error;
@@ -85,6 +87,7 @@ impl Blog {
       }
 
       let is_rst_file = file_name.ends_with(".rst");
+      let is_adoc_file = file_name.ends_with(".adoc");
 
       info!("reading blog post: {} is rst: {}", &file_name, &is_rst_file);
       let (idx, lang, slug) = parse_file_name(file_name).expect("cannot parse file name");
@@ -105,6 +108,12 @@ impl Blog {
           })
           .unwrap_or_default();
         String::from_utf8(buffer)?
+      } else if is_adoc_file {
+        let bump = &Bump::with_capacity(text.len());
+
+        let x = Parser::new_settings(bump, text, Default::default()).parse().unwrap();
+
+        asciidork_dr_html_backend::convert(x.document).unwrap()
       } else {
         markdown::to_html(text)
       };
