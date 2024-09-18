@@ -22,7 +22,7 @@
         }
       ) // {
       overlays.default = _: prev: {
-        website-content-api = self.packages."${prev.system}".website-content-api;
+        inherit (self.packages."${prev.system}") website-content-api;
       };
 
       nixosModules = rec {
