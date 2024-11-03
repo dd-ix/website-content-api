@@ -21,9 +21,6 @@ tracing = "0.1"
 anyhow = "1.0"
 regex = "1.10"
 select = "0.6"
-rst_parser = "0.4"
-rst_renderer = "0.4"
-
 asciidork-parser = "0.6.0"
 asciidork-dr-html-backend = "0.6.0"
 

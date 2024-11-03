@@ -4,6 +4,7 @@ use std::sync::Arc;
 use crate::lang::Language;
 use serde::{Deserialize, Serialize};
 use time::OffsetDateTime;
+use url::Url;
 
 #[derive(Debug, Clone)]
 pub(crate) struct EventHandler {
@@ -22,6 +23,7 @@ pub(crate) struct EventMeta {
   description: String,
   keywords: Vec<String>,
   image: Option<String>,
+  link: Option<Url>,
 }
 
 #[derive(Serialize, Debug, Clone)]
@@ -38,6 +40,7 @@ pub(crate) struct Event {
   description: String,
   keywords: Vec<String>,
   image: Option<String>,
+  link: Option<Url>,
   body: String,
 }
 
@@ -93,6 +96,7 @@ impl EventHandler {
         keywords: meta.keywords.clone(),
         image: meta.image.clone(),
         location: meta.location.clone(),
+        link: meta.link,
         body: markdown::to_html(body),
       });
 

@@ -3,8 +3,8 @@ use std::path::Path;
 use std::sync::Arc;
 
 use anyhow::anyhow;
-use rst_parser::parse;
-use rst_renderer::render_html;
+use asciidork_parser::prelude::Bump;
+use asciidork_parser::Parser;
 use serde::de::Error;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use time::Date;
@@ -84,27 +84,21 @@ impl News {
         continue;
       }
 
-      let is_rst_file = file_name.ends_with(".rst");
+      let is_adoc_file = file_name.ends_with(".adoc");
 
-      info!("reading news post: {} is rst: {}", &file_name, &is_rst_file);
+      info!(
+        "reading news post: {} is adoc: {}",
+        &file_name, &is_adoc_file
+      );
       let (idx, lang, slug) = parse_file_name(file_name)?;
 
-      let body = if is_rst_file {
-        let mut buffer: Vec<u8> = Vec::new();
-        let parsed_rst = parse(text)
-          .map_err(|e| {
-            eprintln!("cannot parse rst file {} with error {}", &file_name, e);
-          })
-          .unwrap_or_default();
-        render_html(&parsed_rst, &mut buffer, true)
-          .map_err(|e| {
-            eprintln!(
-              "cannot render rst file to html {} with error {}",
-              &file_name, e
-            );
-          })
-          .unwrap_or_default();
-        String::from_utf8(buffer)?
+      let body = if is_adoc_file {
+        let bump = &Bump::with_capacity(text.len());
+        let parsed_adoc = Parser::new_settings(bump, text, Default::default())
+          .parse()
+          .expect("cannot parse adoc!");
+
+        asciidork_dr_html_backend::convert(parsed_adoc.document).expect("cannot render adoc!")
       } else {
         markdown::to_html(text)
       };
