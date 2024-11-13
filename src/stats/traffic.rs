@@ -51,7 +51,7 @@ impl Updater for TrafficUpdater {
     let now = OffsetDateTime::now_utc();
 
     let data = self
-      .query_stats(OffsetDateTime::now_utc() - self.selection, now, 255.0)
+      .query_stats(OffsetDateTime::now_utc() - self.selection, now, 512.0)
       .await?;
 
     Ok(data)
