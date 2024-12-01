@@ -1,7 +1,7 @@
 use crate::bird::Bird;
-use crate::blog::Blog;
+use crate::blog::Blogs;
 use crate::documents::Documents;
-use crate::event::EventHandler;
+use crate::event::Events;
 use crate::news::News;
 use crate::peers::NetworkService;
 use crate::stats::Stats;
@@ -10,7 +10,7 @@ use crate::text_blocks::TextBlocks;
 
 #[derive(Clone)]
 pub(crate) struct FoundationState {
-  pub(crate) blog: Blog,
+  pub(crate) blog: Blogs,
   pub(crate) news: News,
   pub(crate) text_blocks: TextBlocks,
   pub(crate) documents: Documents,
@@ -18,5 +18,5 @@ pub(crate) struct FoundationState {
   pub(crate) stats: Stats,
   pub(crate) peers: NetworkService,
   pub(crate) bird: Bird,
-  pub(crate) events: EventHandler,
+  pub(crate) events: Events,
 }

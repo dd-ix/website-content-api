@@ -7,7 +7,7 @@ use axum::Json;
 use serde::{Deserialize, Deserializer};
 
 use crate::lang::Language;
-use crate::news::{Post, SmallPost};
+use crate::news::{NewsPost, SmallNewsPost};
 use crate::state::FoundationState;
 
 #[derive(Deserialize)]
@@ -35,24 +35,25 @@ pub(crate) async fn list_posts(
   State(state): State<FoundationState>,
   Path(lang): Path<Language>,
   Query(query): Query<ListQuery>,
-) -> Json<Vec<Arc<SmallPost>>> {
+) -> Json<Vec<Arc<SmallNewsPost>>> {
   match query.keywords {
-    None => Json(state.news.posts(lang)),
-    Some(keywords) => Json(state.news.search_by_keywords(lang, &keywords.0)),
+    None => Json(state.news.content_by_lang(lang).await),
+    Some(keywords) => Json(state.news.search_by_keywords(lang, &keywords.0).await),
   }
 }
 
 pub(crate) async fn find_post(
   State(state): State<FoundationState>,
   Path((lang, slug)): Path<(Language, String)>,
-) -> Result<Json<Arc<Post>>, StatusCode> {
+) -> Result<Json<Arc<NewsPost>>, StatusCode> {
   state
     .news
-    .find_post(lang, &slug)
+    .content_by_slug(lang, &slug)
+    .await
     .map(Json)
     .ok_or(StatusCode::NOT_FOUND)
 }
 
 pub(crate) async fn find_keywords(State(state): State<FoundationState>) -> Json<HashSet<String>> {
-  Json(state.news.keywords())
+  Json(state.news.keywords().await)
 }

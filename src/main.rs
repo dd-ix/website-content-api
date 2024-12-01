@@ -8,9 +8,9 @@ use tracing_subscriber::FmtSubscriber;
 
 use crate::args::Args;
 use crate::bird::Bird;
-use crate::blog::Blog;
+use crate::blog::Blogs;
 use crate::documents::Documents;
-use crate::event::EventHandler;
+use crate::event::Events;
 use crate::news::News;
 use crate::peers::NetworkService;
 use crate::routes::{route, ContentPaths};
@@ -28,6 +28,7 @@ mod event;
 mod lang;
 mod news;
 mod peers;
+mod posts;
 mod routes;
 mod state;
 mod stats;
@@ -54,7 +55,7 @@ async fn main() -> anyhow::Result<()> {
   ));
 
   let state = FoundationState {
-    blog: Blog::load(&args.content_directory.join("blog")).await?,
+    blog: Blogs::load(&args.content_directory.join("blog")).await?,
     news: News::load(&args.content_directory.join("news")).await?,
     text_blocks: TextBlocks::load(&args.content_directory.join("text_blocks"), &args.base_url)
       .await?,
@@ -67,7 +68,7 @@ async fn main() -> anyhow::Result<()> {
     )
     .await?,
     bird: Bird::new(args.bird_html).await?,
-    events: EventHandler::load(&args.content_directory.join("event")).await?,
+    events: Events::load(&args.content_directory.join("event")).await?,
   };
 
   let cors = CorsLayer::new()

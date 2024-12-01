@@ -6,7 +6,7 @@ use axum::http::StatusCode;
 use axum::Json;
 use serde::{Deserialize, Deserializer};
 
-use crate::blog::{Post, SmallPost};
+use crate::blog::{BlogPost, SmallBlogPost};
 use crate::lang::Language;
 use crate::state::FoundationState;
 
@@ -35,24 +35,25 @@ pub(crate) async fn list_posts(
   State(state): State<FoundationState>,
   Path(lang): Path<Language>,
   Query(query): Query<ListQuery>,
-) -> Json<Vec<Arc<SmallPost>>> {
+) -> Json<Vec<Arc<SmallBlogPost>>> {
   match query.keywords {
-    None => Json(state.blog.posts(lang)),
-    Some(keywords) => Json(state.blog.search_by_keywords(lang, &keywords.0)),
+    None => Json(state.blog.content_by_lang(lang).await),
+    Some(keywords) => Json(state.blog.search_by_keywords(lang, &keywords.0).await),
   }
 }
 
 pub(crate) async fn find_post(
   State(state): State<FoundationState>,
   Path((lang, slug)): Path<(Language, String)>,
-) -> Result<Json<Arc<Post>>, StatusCode> {
+) -> Result<Json<Arc<BlogPost>>, StatusCode> {
   state
     .blog
-    .find_post(lang, &slug)
+    .content_by_slug(lang, &slug)
+    .await
     .map(Json)
     .ok_or(StatusCode::NOT_FOUND)
 }
 
 pub(crate) async fn find_keywords(State(state): State<FoundationState>) -> Json<HashSet<String>> {
-  Json(state.blog.keywords())
+  Json(state.blog.keywords().await)
 }
