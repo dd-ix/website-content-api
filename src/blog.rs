@@ -1,6 +1,6 @@
 use crate::lang::Language;
 use crate::posts::{
-  post_provider::{LongPostFromMeta, PostMeta, PostProvider, SmallPostFromLong},
+  post_provider::{LongPostFromMeta, PostMeta, PostProvider},
   MyDate,
 };
 use serde::{Deserialize, Serialize};
@@ -65,8 +65,8 @@ impl LongPostFromMeta<BlogMeta> for BlogPost {
   }
 }
 
-impl SmallPostFromLong<BlogPost> for SmallBlogPost {
-  fn from(post: &BlogPost) -> Self {
+impl From<BlogPost> for SmallBlogPost {
+  fn from(post: BlogPost) -> Self {
     let blog_clone = post.clone();
     Self {
       slug: blog_clone.slug,

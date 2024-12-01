@@ -1,6 +1,5 @@
 use super::parse_file_name;
 use std::collections::HashSet;
-use std::ops::Deref;
 use std::path::Path;
 use std::sync::Arc;
 
@@ -16,10 +15,6 @@ pub trait LongPostFromMeta<Meta> {
   fn from(slug: &str, lang: Language, idx: u32, meta: Meta, body: String) -> Self;
 }
 
-pub trait SmallPostFromLong<Long> {
-  fn from(post: &Long) -> Self;
-}
-
 pub trait PostMeta {
   fn idx(&self) -> u32;
   fn lang(&self) -> Language;
@@ -31,7 +26,7 @@ pub trait PostMeta {
 pub(crate) struct PostProvider<Meta, ShortPost, LongPost>
 where
   LongPost: LongPostFromMeta<Meta>,
-  ShortPost: SmallPostFromLong<LongPost>,
+  ShortPost: From<LongPost>,
 {
   posts: Arc<Vec<Arc<LongPost>>>,
   small_posts: Arc<Vec<Arc<ShortPost>>>,
@@ -40,8 +35,8 @@ where
 
 impl<Meta, ShortPost, LongPost> PostProvider<Meta, ShortPost, LongPost>
 where
-  LongPost: Serialize + LongPostFromMeta<Meta> + PostMeta,
-  ShortPost: Serialize + SmallPostFromLong<LongPost> + PostMeta + PartialEq,
+  LongPost: Serialize + LongPostFromMeta<Meta> + PostMeta + std::fmt::Debug,
+  ShortPost: Serialize + From<LongPost> + PostMeta + PartialEq,
   Meta: DeserializeOwned + Clone,
 {
   pub(crate) async fn load(directory: &Path) -> anyhow::Result<Self> {
@@ -92,7 +87,7 @@ where
 
     let small_posts = posts
       .iter()
-      .map(|post| Arc::new(ShortPost::from(post.deref())))
+      .map(|post| Arc::new(ShortPost::from(Arc::try_unwrap(post.clone()).unwrap())))
       .collect();
 
     Ok(Self {

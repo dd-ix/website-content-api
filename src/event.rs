@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 use time::OffsetDateTime;
 use url::Url;
 
-use crate::posts::post_provider::{LongPostFromMeta, PostMeta, PostProvider, SmallPostFromLong};
+use crate::posts::post_provider::{LongPostFromMeta, PostMeta, PostProvider};
 
 pub(crate) type Events = PostProvider<EventMeta, SmallEventPost, EventPost>;
 
@@ -74,8 +74,8 @@ impl LongPostFromMeta<EventMeta> for EventPost {
   }
 }
 
-impl SmallPostFromLong<EventPost> for SmallEventPost {
-  fn from(event: &EventPost) -> Self {
+impl From<EventPost> for SmallEventPost {
+  fn from(event: EventPost) -> Self {
     let event_clone = event.clone();
     Self {
       slug: event_clone.slug,
