@@ -26,7 +26,7 @@ pub trait PostMeta {
 pub(crate) struct PostProvider<Meta, ShortPost, LongPost>
 where
   LongPost: LongPostFromMeta<Meta>,
-  ShortPost: From<LongPost>,
+  ShortPost: From<Arc<LongPost>>,
 {
   posts: Arc<Vec<Arc<LongPost>>>,
   small_posts: Arc<Vec<Arc<ShortPost>>>,
@@ -36,7 +36,7 @@ where
 impl<Meta, ShortPost, LongPost> PostProvider<Meta, ShortPost, LongPost>
 where
   LongPost: Serialize + LongPostFromMeta<Meta> + PostMeta + std::fmt::Debug,
-  ShortPost: Serialize + From<LongPost> + PostMeta + PartialEq,
+  ShortPost: Serialize + From<Arc<LongPost>> + PostMeta + PartialEq,
   Meta: DeserializeOwned + Clone,
 {
   pub(crate) async fn load(directory: &Path) -> anyhow::Result<Self> {
@@ -87,7 +87,7 @@ where
 
     let small_posts = posts
       .iter()
-      .map(|post| Arc::new(ShortPost::from(Arc::try_unwrap(post.clone()).unwrap())))
+      .map(|post| Arc::new(ShortPost::from(post.clone())))
       .collect();
 
     Ok(Self {

@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use crate::lang::Language;
 use crate::posts::{
   post_provider::{LongPostFromMeta, PostMeta, PostProvider},
@@ -65,20 +67,19 @@ impl LongPostFromMeta<BlogMeta> for BlogPost {
   }
 }
 
-impl From<BlogPost> for SmallBlogPost {
-  fn from(post: BlogPost) -> Self {
-    let blog_clone = post.clone();
+impl From<Arc<BlogPost>> for SmallBlogPost {
+  fn from(post: Arc<BlogPost>) -> Self {
     Self {
-      slug: blog_clone.slug,
-      lang: blog_clone.lang,
-      idx: blog_clone.idx,
-      title: blog_clone.title,
-      published: blog_clone.published,
-      modified: blog_clone.modified,
-      description: blog_clone.description,
-      keywords: blog_clone.keywords,
-      authors: blog_clone.authors,
-      image: blog_clone.image,
+      slug: post.slug.clone(),
+      lang: post.lang,
+      idx: post.idx,
+      title: post.title.clone(),
+      published: post.published,
+      modified: post.modified,
+      description: post.description.clone(),
+      keywords: post.keywords.clone(),
+      authors: post.authors.clone(),
+      image: post.image.clone(),
     }
   }
 }

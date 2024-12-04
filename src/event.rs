@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use crate::lang::Language;
 use serde::{Deserialize, Serialize};
 use time::OffsetDateTime;
@@ -74,20 +76,19 @@ impl LongPostFromMeta<EventMeta> for EventPost {
   }
 }
 
-impl From<EventPost> for SmallEventPost {
-  fn from(event: EventPost) -> Self {
-    let event_clone = event.clone();
+impl From<Arc<EventPost>> for SmallEventPost {
+  fn from(event: Arc<EventPost>) -> Self {
     Self {
-      slug: event_clone.slug,
-      lang: event_clone.lang,
-      idx: event_clone.idx,
-      title: event_clone.title,
-      start_time: event_clone.start_time,
-      end_time: event_clone.end_time,
-      location: event_clone.location,
-      description: event_clone.description,
-      keywords: event_clone.keywords,
-      image: event_clone.image,
+      slug: event.slug.clone(),
+      lang: event.lang,
+      idx: event.idx,
+      title: event.title.clone(),
+      start_time: event.start_time,
+      end_time: event.end_time,
+      location: event.location.clone(),
+      description: event.description.clone(),
+      keywords: event.keywords.clone(),
+      image: event.image.clone(),
     }
   }
 }

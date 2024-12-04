@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use crate::lang::Language;
 use crate::posts::{
   post_provider::{LongPostFromMeta, PostMeta, PostProvider},
@@ -65,8 +67,8 @@ impl LongPostFromMeta<NewsMeta> for NewsPost {
   }
 }
 
-impl From<NewsPost> for SmallNewsPost {
-  fn from(post: NewsPost) -> Self {
+impl From<Arc<NewsPost>> for SmallNewsPost {
+  fn from(post: Arc<NewsPost>) -> Self {
     Self {
       slug: post.slug.clone(),
       lang: post.lang,
