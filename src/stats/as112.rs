@@ -47,7 +47,6 @@ pub(super) struct As112Updater {
   selection: Duration,
 }
 
-#[async_trait::async_trait]
 impl Updater for As112Updater {
   type Output = Series<HashMap<String, Vec<(f64, f64)>>>;
   type Error = anyhow::Error;

@@ -42,7 +42,6 @@ pub(super) struct TrafficUpdater {
   selection: Duration,
 }
 
-#[async_trait::async_trait]
 impl Updater for TrafficUpdater {
   type Output = Series<Vec<(f64, f64)>>;
   type Error = anyhow::Error;

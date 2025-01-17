@@ -1,4 +1,3 @@
-use axum::async_trait;
 use select::predicate::Name;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
@@ -14,7 +13,6 @@ pub(crate) struct Bird {
   content: Arc<Cache<BirdUpdater>>,
 }
 
-#[async_trait]
 impl Updater for BirdUpdater {
   type Output = String;
   type Error = anyhow::Error;

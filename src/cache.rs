@@ -9,7 +9,6 @@ use tokio::sync::RwLock;
 const UPDATING_WAIT: std::time::Duration = std::time::Duration::from_millis(10);
 const MAX_AGE: Duration = Duration::minutes(10);
 
-#[async_trait::async_trait]
 pub(crate) trait Updater {
   type Output;
   type Error;

@@ -3,6 +3,7 @@ use std::collections::HashSet;
 use std::path::Path;
 use std::sync::Arc;
 
+use asciidork_parser::parser::SourceFile;
 use asciidork_parser::prelude::Bump;
 use asciidork_parser::Parser;
 use serde::de::DeserializeOwned;
@@ -70,8 +71,8 @@ where
       let (idx, lang, slug) = parse_file_name(file_name)?;
 
       let body = if is_adoc_file {
-        let bump = &Bump::with_capacity(text.len());
-        let parsed_adoc = Parser::new_settings(bump, text, Default::default())
+        let bump = &Bump::with_capacity(text.len() * 2);
+        let parsed_adoc = Parser::from_str(text, SourceFile::Path(path.clone().into()), bump)
           .parse()
           .expect("cannot parse adoc!");
 

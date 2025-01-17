@@ -1,6 +1,6 @@
 {
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/release-24.11";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-24.11";
     flake-utils.url = "github:numtide/flake-utils";
   };
 
@@ -14,9 +14,7 @@
         in
         {
           packages = rec {
-            website-content-api = pkgs.callPackage ./derivation.nix {
-              cargoToml = ./Cargo.toml;
-            };
+            website-content-api = pkgs.callPackage ./package.nix { };
             default = website-content-api;
           };
         }
@@ -26,7 +24,7 @@
       };
 
       nixosModules = rec {
-        website-content-api = import ./module.nix;
+        website-content-api = ./module.nix;
         default = website-content-api;
       };
     };
