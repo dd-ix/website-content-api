@@ -1,4 +1,5 @@
 { pkgs, config, lib, ... }:
+
 let
   cfg = config.dd-ix.website-content-api;
 in
@@ -65,7 +66,7 @@ in
       };
 
       serviceConfig = {
-        ExecStart = "${pkgs.website-content-api}/bin/foundation";
+        ExecStart = lib.getExe pkgs.website-content-api;
         DynamicUser = true;
         Restart = "always";
       };
