@@ -84,9 +84,9 @@ checksum = "e16d2d3311acee920a9eb8d33b8cbc1787ce4a264e85f964c2404b969bdcd487"
 
 [[package]]
 name = "asciidork-ast"
-version = "0.21.0"
+version = "0.20.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "42d93b27b962bdb8b8c8b987ae37a900da75da2d180259bb698d7efaa12e8252"
+checksum = "9087347336b3ceb57187df482153b5f323433397ca3d2b526c91d6a760378fc2"
 dependencies = [
  "asciidork-core",
  "bumpalo",
@@ -95,9 +95,9 @@ dependencies = [
 
 [[package]]
 name = "asciidork-backend"
-version = "0.21.0"
+version = "0.20.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "332d123bfba79970d218519e559f6856b60f75fbff322e5424622df2d2b7b671"
+checksum = "c0e082f97648453fc43988b817c8815b966adbc434ac2d22530c697121d27cb6"
 dependencies = [
  "asciidork-ast",
  "asciidork-core",
@@ -105,18 +105,18 @@ dependencies = [
 
 [[package]]
 name = "asciidork-core"
-version = "0.21.0"
+version = "0.20.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5b3a9bb0fc3fde2615922b156c90c5f632fd3b8b76204833baaa1f4161683f70"
+checksum = "e59f4db5ca4c3a6d41fba2b2e3fc604a55e582b454d7cdc1bef408ea240a420e"
 dependencies = [
  "lazy_static",
 ]
 
 [[package]]
 name = "asciidork-dr-html-backend"
-version = "0.21.0"
+version = "0.20.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "49ddd6dbcde7636460d0b4a4f73ae7eae7624975ddee90da1b9cef6f982768cc"
+checksum = "0603577e2d87f77f4dec6ba0bd5c912368856a99e16cdc03d342454592961a19"
 dependencies = [
  "asciidork-ast",
  "asciidork-backend",
@@ -131,9 +131,9 @@ dependencies = [
 
 [[package]]
 name = "asciidork-eval"
-version = "0.21.0"
+version = "0.20.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2c10cb24797d567e11ad76518c46766eddec1d6c65a62e9ff2586552ec512e9b"
+checksum = "b3dab01b8b1a13e9d2a03817e3ac597d6c77c5a6c59ce66b703b7ffac41db93d"
 dependencies = [
  "asciidork-ast",
  "asciidork-backend",
@@ -141,9 +141,9 @@ dependencies = [
 
 [[package]]
 name = "asciidork-parser"
-version = "0.21.0"
+version = "0.20.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "719ea332ed5dd5a01a33edcb581aff46f90815c78189fe472aed9aa8d2e3c923"
+checksum = "8e46ab936f4553cc64b65d340fd48819067a68b05a8cb3de74798d1679e0039f"
 dependencies = [
  "asciidork-ast",
  "asciidork-core",
