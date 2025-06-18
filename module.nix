@@ -108,6 +108,22 @@ in
             access_log off;
           '';
         };
+        "/news/assets/" = {
+          alias = "${cfg.content}/content/news/assets/";
+          tryFiles = "$uri $uri/ =404";
+          extraConfig = ''
+            expires max;
+            access_log off;
+          '';
+        };
+        "/documents/download/" = {
+          alias = "${cfg.content}/content/documents/download/";
+          tryFiles = "$uri $uri/ =404";
+          extraConfig = ''
+            expires max;
+            access_log off;
+          '';
+        };
         "/" = {
           recommendedProxySettings = true;
           proxyPass = "http://${cfg.http.host}:${toString cfg.http.port}/";

@@ -5,14 +5,16 @@ use std::{collections::HashMap, sync::Arc};
 
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
+use strum::IntoEnumIterator;
+use strum_macros::EnumIter;
 use time::{Duration, OffsetDateTime};
 use url::Url;
 
-use crate::cache::Cache;
+use crate::auto_cache::Cache;
 
 use self::{as112::As112Updater, traffic::TrafficUpdater};
 
-#[derive(Deserialize)]
+#[derive(Deserialize, EnumIter, Clone, Copy)]
 #[serde(rename_all = "snake_case")]
 pub(crate) enum TimeSelection {
   TwoDays,
@@ -131,17 +133,26 @@ impl Stats {
     }
   }
 
+  pub(crate) async fn update(&self) -> anyhow::Result<()> {
+    for selection in TimeSelection::iter() {
+      self.traffic.get(selection).update().await?;
+      self.as112.get(selection).update().await?;
+    }
+
+    Ok(())
+  }
+
   pub(crate) async fn get_traffic_stats(
     &self,
     selection: TimeSelection,
-  ) -> anyhow::Result<Arc<Series<Vec<(f64, f64)>>>> {
+  ) -> Option<Arc<Series<Vec<(f64, f64)>>>> {
     self.traffic.get(selection).get().await
   }
 
   pub(crate) async fn get_as112_stats(
     &self,
     selection: TimeSelection,
-  ) -> anyhow::Result<Arc<Series<HashMap<String, Vec<(f64, f64)>>>>> {
+  ) -> Option<Arc<Series<HashMap<String, Vec<(f64, f64)>>>>> {
     self.as112.get(selection).get().await
   }
 }

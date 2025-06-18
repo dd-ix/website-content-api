@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 use time::{Duration, OffsetDateTime};
 use url::Url;
 
-use crate::cache::Updater;
+use crate::auto_cache::Updater;
 
 use super::{Series, TimeSelection};
 

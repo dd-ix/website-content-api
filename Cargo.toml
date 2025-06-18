@@ -14,6 +14,8 @@ serde = { version = "1.0", default-features = false, features = ["derive", "rc"]
 serde_yaml = { version = "0.9", default-features = false }
 clap = { version = "4.5", features = ["derive", "env"] }
 url = { version = "2.5", features = ["serde"], default-features = false }
+strum = {version = "0.27", default-features = false}
+strum_macros = {version = "0.27", default-features = false}
 serde_json = { version = "1.0" }
 markdown = "1.0"
 tracing = "0.1"

@@ -1,3 +1,5 @@
+use std::time::Duration;
+
 use axum::http::header::CONTENT_TYPE;
 use axum::http::Method;
 use clap::Parser;
@@ -20,6 +22,7 @@ use crate::team::Team;
 use crate::text_blocks::TextBlocks;
 
 mod args;
+mod auto_cache;
 mod bird;
 mod blog;
 mod cache;
@@ -70,6 +73,18 @@ async fn main() -> anyhow::Result<()> {
     bird: Bird::new(args.bird_html).await?,
     events: Events::load(&args.content_directory.join("event")).await?,
   };
+
+  let stats = state.stats.clone();
+  tokio::spawn(async move {
+    loop {
+      if let Err(err) = stats.update().await {
+        error!("Failed to update stats: {:?}", err);
+        tokio::time::sleep(Duration::from_secs(10)).await;
+      } else {
+        tokio::time::sleep(Duration::from_secs(60 * 10)).await;
+      }
+    }
+  });
 
   let cors = CorsLayer::new()
     .allow_methods([Method::GET, Method::POST])
