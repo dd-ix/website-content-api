@@ -22,8 +22,8 @@ tracing = "0.1"
 anyhow = "1.0"
 regex = "1.11"
 select = "0.6"
-asciidork-parser = "0.20"
-asciidork-dr-html-backend = "0.20"
+asciidork-parser = "0.21"
+asciidork-dr-html-backend = "0.21"
 
 [profile.release]
 lto = true
