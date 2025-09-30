@@ -55,7 +55,7 @@ where
       let content = content.strip_prefix("---").unwrap();
       let (meta, text) = content.split_once("---").unwrap();
 
-      let meta: Meta = serde_yaml::from_str::<Meta>(meta)?;
+      let meta: Meta = serde_yaml_ng::from_str::<Meta>(meta)?;
       let file_name = path.file_name().unwrap().to_str().unwrap();
 
       if file_name.starts_with('_') {

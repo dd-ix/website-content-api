@@ -22,7 +22,7 @@ pub(crate) struct Documents {
 impl Documents {
   pub(crate) async fn load(path: &Path) -> anyhow::Result<Self> {
     let string = tokio::fs::read_to_string(path.join("documents.yaml")).await?;
-    let documents = serde_yaml::from_str(&string)?;
+    let documents = serde_yaml_ng::from_str(&string)?;
     Ok(Self { documents })
   }
 

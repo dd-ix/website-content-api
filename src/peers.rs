@@ -178,7 +178,7 @@ impl Updater for PeersUpdater {
 impl NetworkService {
   pub(crate) async fn new(base_path: &Path, ixp_manager_url: Url) -> anyhow::Result<Self> {
     let serialized_supporter = tokio::fs::read_to_string(base_path.join("supporter.yaml")).await?;
-    let yaml_file = serde_yaml::from_str(&serialized_supporter)?;
+    let yaml_file = serde_yaml_ng::from_str(&serialized_supporter)?;
 
     let updater = PeersUpdater {
       client: Client::new(),

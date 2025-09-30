@@ -17,7 +17,7 @@ pub(crate) struct Mirrors {
 impl Mirrors {
   pub(crate) async fn load(file: impl AsRef<Path>) -> anyhow::Result<Self> {
     let serialized_mirrors = tokio::fs::read_to_string(file).await?;
-    let mut mirrors: Vec<Mirror> = serde_yaml::from_str(&serialized_mirrors)?;
+    let mut mirrors: Vec<Mirror> = serde_yaml_ng::from_str(&serialized_mirrors)?;
 
     mirrors.sort_by(|a, b| a.name.cmp(&b.name));
 
