@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-tokio = { version = "1.45", default-features = false, features = ["macros", "rt-multi-thread", "net", "fs", "sync", "time"] }
+tokio = { version = "1.47", default-features = false, features = ["macros", "rt-multi-thread", "net", "fs", "sync", "time"] }
 reqwest = { version = "0.12", features = ["json", "rustls-tls-webpki-roots"], default-features = false }
 axum = { version = "0.8", default-features = false, features = ["tokio", "http1", "json", "query","macros"] }
 time = { version = "0.3", default-features = false, features = ["serde", "std", "formatting", "parsing"] }
@@ -22,8 +22,8 @@ tracing = "0.1"
 anyhow = "1.0"
 regex = "1.11"
 select = "0.6"
-asciidork-parser = "0.20"
-asciidork-dr-html-backend = "0.20"
+asciidork-parser = "0.25"
+asciidork-dr-html-backend = "0.25"
 
 [profile.release]
 lto = true
