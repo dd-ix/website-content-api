@@ -2,6 +2,7 @@ use crate::bird::Bird;
 use crate::blog::Blogs;
 use crate::documents::Documents;
 use crate::event::Events;
+use crate::mirrors::Mirrors;
 use crate::news::News;
 use crate::peers::NetworkService;
 use crate::stats::Stats;
@@ -19,4 +20,5 @@ pub(crate) struct FoundationState {
   pub(crate) peers: NetworkService,
   pub(crate) bird: Bird,
   pub(crate) events: Events,
+  pub(crate) mirrors: Mirrors,
 }

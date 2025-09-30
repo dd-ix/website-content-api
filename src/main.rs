@@ -13,6 +13,7 @@ use crate::bird::Bird;
 use crate::blog::Blogs;
 use crate::documents::Documents;
 use crate::event::Events;
+use crate::mirrors::Mirrors;
 use crate::news::News;
 use crate::peers::NetworkService;
 use crate::routes::{route, ContentPaths};
@@ -29,6 +30,7 @@ mod cache;
 mod documents;
 mod event;
 mod lang;
+mod mirrors;
 mod news;
 mod peers;
 mod posts;
@@ -72,6 +74,7 @@ async fn main() -> anyhow::Result<()> {
     .await?,
     bird: Bird::new(args.bird_html).await?,
     events: Events::load(&args.content_directory.join("event")).await?,
+    mirrors: Mirrors::load(&args.content_directory.join("mirrors.yaml")).await?,
   };
 
   let stats = state.stats.clone();

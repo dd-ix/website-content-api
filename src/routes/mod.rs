@@ -1,6 +1,7 @@
 use std::path::PathBuf;
 
 use crate::routes::bird::get_bird;
+use crate::routes::mirrors::get_mirrors;
 use axum::routing::get;
 use axum::Router;
 use tower_http::services::ServeDir;
@@ -29,6 +30,7 @@ mod stats;
 mod team;
 mod text_blocks;
 
+mod mirrors;
 mod news;
 
 pub(crate) struct ContentPaths {
@@ -70,4 +72,5 @@ pub(crate) fn route(content_paths: &ContentPaths) -> Router<FoundationState> {
     .route("/stats/as112/{selection}", get(get_as112_stats))
     .route("/peers", get(get_peers_and_supporter))
     .route("/bird", get(get_bird))
+    .route("/mirrors", get(get_mirrors))
 }
