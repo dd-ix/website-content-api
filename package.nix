@@ -1,6 +1,7 @@
-{ lib, rustPlatform, ... }:
+{ lib, rustPackages_1_88, ... }:
 
 let
+  inherit (rustPackages_1_88) rustPlatform;
   manifest = (lib.importTOML ./Cargo.toml).package;
 in
 rustPlatform.buildRustPackage rec {
