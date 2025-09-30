@@ -25,6 +25,6 @@ impl Mirrors {
   }
 
   pub(crate) fn mirrors(&self) -> Vec<Mirror> {
-    self.mirrors.iter().cloned().collect()
+    self.mirrors.to_vec()
   }
 }
