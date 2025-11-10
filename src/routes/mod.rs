@@ -11,6 +11,7 @@ use crate::routes::blog::{
 };
 use crate::routes::documents::list_documents;
 use crate::routes::event::{find_event, list_all_events, list_future_events};
+use crate::routes::looking_glass::get_connected_to_community;
 use crate::routes::news::{
   find_keywords as news_find_keywords, find_post as news_find_post, list_posts as news_list_posts,
 };
@@ -32,6 +33,8 @@ mod text_blocks;
 
 mod mirrors;
 mod news;
+
+mod looking_glass;
 
 pub(crate) struct ContentPaths {
   pub(crate) blog: PathBuf,
@@ -73,4 +76,5 @@ pub(crate) fn route(content_paths: &ContentPaths) -> Router<FoundationState> {
     .route("/peers", get(get_peers_and_supporter))
     .route("/bird", get(get_bird))
     .route("/mirrors", get(get_mirrors))
+    .route("/community/connected", get(get_connected_to_community))
 }

@@ -2,6 +2,7 @@ use crate::bird::Bird;
 use crate::blog::Blogs;
 use crate::documents::Documents;
 use crate::event::Events;
+use crate::looking_glass::LookingGlass;
 use crate::mirrors::Mirrors;
 use crate::news::News;
 use crate::peers::NetworkService;
@@ -21,4 +22,5 @@ pub(crate) struct FoundationState {
   pub(crate) bird: Bird,
   pub(crate) events: Events,
   pub(crate) mirrors: Mirrors,
+  pub(crate) looking_glass: LookingGlass,
 }

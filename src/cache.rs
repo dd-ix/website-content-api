@@ -30,6 +30,17 @@ impl<U: Updater> Cache<U> {
     }
   }
 
+  pub(crate) async fn get_cached(&self) -> Arc<U::Output> {
+    self
+      .cached
+      .read()
+      .await
+      .as_ref()
+      .expect("cache has not been initialized")
+      .1
+      .clone()
+  }
+
   pub(crate) async fn get(&self) -> Result<Arc<U::Output>, U::Error> {
     let now = OffsetDateTime::now_utc();
 

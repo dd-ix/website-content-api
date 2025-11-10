@@ -24,6 +24,7 @@ regex = "1.11"
 select = "0.6"
 asciidork-parser = "0.25"
 asciidork-dr-html-backend = "0.25"
+ipnet = { version = "2.11", features = ["serde"] }
 
 [profile.release]
 lto = true

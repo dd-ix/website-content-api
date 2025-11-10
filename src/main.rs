@@ -1,3 +1,4 @@
+use std::net::SocketAddr;
 use std::time::Duration;
 
 use axum::http::header::CONTENT_TYPE;
@@ -13,6 +14,7 @@ use crate::bird::Bird;
 use crate::blog::Blogs;
 use crate::documents::Documents;
 use crate::event::Events;
+use crate::looking_glass::LookingGlass;
 use crate::mirrors::Mirrors;
 use crate::news::News;
 use crate::peers::NetworkService;
@@ -30,6 +32,7 @@ mod cache;
 mod documents;
 mod event;
 mod lang;
+mod looking_glass;
 mod mirrors;
 mod news;
 mod peers;
@@ -75,9 +78,11 @@ async fn main() -> anyhow::Result<()> {
     bird: Bird::new(args.bird_html).await?,
     events: Events::load(&args.content_directory.join("event")).await?,
     mirrors: Mirrors::load(&args.content_directory.join("mirrors.yaml")).await?,
+    looking_glass: LookingGlass::load(args.alice_looking_glass_address).await?,
   };
 
   let stats = state.stats.clone();
+  let looking_glass = state.looking_glass.clone();
   tokio::spawn(async move {
     loop {
       if let Err(err) = stats.update().await {
@@ -86,6 +91,16 @@ async fn main() -> anyhow::Result<()> {
       } else {
         tokio::time::sleep(Duration::from_secs(60 * 10)).await;
       }
+    }
+  });
+
+  tokio::spawn(async move {
+    loop {
+      if let Err(e) = looking_glass.routes.get().await {
+        error!("error while updating routes cache: {e}");
+      }
+
+      tokio::time::sleep(Duration::from_secs(60 * 60)).await;
     }
   });
 
@@ -108,7 +123,10 @@ async fn main() -> anyhow::Result<()> {
   let listener = TcpListener::bind(&args.listen_addr).await?;
   info!("Listening on http://{}...", args.listen_addr);
 
-  let server = axum::serve(listener, router.into_make_service());
+  let server = axum::serve(
+    listener,
+    router.into_make_service_with_connect_info::<SocketAddr>(),
+  );
 
   if let Err(err) = server.await {
     error!("Error while serving api: {}", err);
