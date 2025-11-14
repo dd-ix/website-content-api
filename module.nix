@@ -18,7 +18,7 @@ in
     http = {
       host = lib.mkOption {
         type = lib.types.str;
-        default = "http://127.0.0.1";
+        default = "127.0.0.1";
         description = ''
           To which IP website-content-api should bind.
         '';
@@ -39,6 +39,10 @@ in
     url = lib.mkOption {
       type = lib.types.str;
       description = ''under which domain website-content-api serves its content'';
+    };
+    lookingGlassUrl = lib.mkOption {
+      type = lib.types.str;
+      description = "base url of looking glass";
     };
     prometheusUrl = lib.mkOption {
       type = lib.types.str;
@@ -61,6 +65,7 @@ in
         WEBSITE_CONTENT_API_LISTEN_ADDR = "${cfg.http.host}:${toString cfg.http.port}";
         WEBSITE_CONTENT_API_CONTENT_DIRECTORY = "${pkgs.website-content}/content/";
         WEBSITE_CONTENT_API_BASE_URL = cfg.url;
+        WEBSITE_CONTENT_API_LOOKING_GLASS_URL = cfg.lookingGlassUrl;
         WEBSITE_CONTENT_API_PROMETHEUS_URL = cfg.prometheusUrl;
         WEBSITE_CONTENT_API_IXP_MANAGER_URL = cfg.ixpManagerUrl;
       };
