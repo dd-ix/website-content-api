@@ -8,45 +8,46 @@ use tracing::{error, info};
 use url::Url;
 
 #[derive(Clone)]
-pub(crate) struct AliceLookingGlassUpdater {
-  looking_glass_address: Url,
+pub(crate) struct LookingGlassUpdater {
+  looking_glass_url: Url,
   client: Client,
 }
 
 #[derive(Deserialize)]
-pub(crate) struct AliceLookingGlassNeighbor {
+pub(crate) struct LookingGlassNeighbor {
   asn: i32,
 }
 
 #[derive(Deserialize)]
-pub(crate) struct AliceLookingGlassNeighbors {
-  neighbors: Vec<AliceLookingGlassNeighbor>,
+pub(crate) struct LookingGlassNeighbors {
+  neighbors: Vec<LookingGlassNeighbor>,
 }
 
-impl AliceLookingGlassUpdater {
-  pub(crate) async fn load(looking_glass_address: Url) -> anyhow::Result<Self> {
+impl LookingGlassUpdater {
+  pub(crate) async fn load(looking_glass_url: Url) -> anyhow::Result<Self> {
     Ok(Self {
-      looking_glass_address,
+      looking_glass_url,
       client: Default::default(),
     })
   }
 }
 
-impl Updater for AliceLookingGlassUpdater {
+impl Updater for LookingGlassUpdater {
   type Output = Vec<IpNet>;
   type Error = anyhow::Error;
 
   async fn update(&self) -> Result<Self::Output, Self::Error> {
     let asns: Vec<i32> = self
       .client
-      .get(format!(
-        "https://{}/api/v1/routeservers/rs01_v4/neighbors",
-        self.looking_glass_address
-      ))
+      .get(
+        self
+          .looking_glass_url
+          .join("/api/v1/routeservers/rs01_v4/neighbors")?,
+      )
       .send()
       .await?
       .error_for_status()?
-      .json::<AliceLookingGlassNeighbors>()
+      .json::<LookingGlassNeighbors>()
       .await?
       .neighbors
       .iter()
@@ -65,24 +66,22 @@ impl Updater for AliceLookingGlassUpdater {
           );
           match self
             .client
-            .get(format!(
-              "https://{}/api/v1/routeservers/rs01_{}/neighbors/AS{}_1/routes/received?pf={}",
-              self.looking_glass_address, inet_type, asn, current_page
-            ))
+            .get(self.looking_glass_url.join(&format!(
+              "/api/v1/routeservers/rs01_{}/neighbors/AS{}_1/routes/received?pf={}",
+              inet_type, asn, current_page
+            ))?)
             .send()
             .await?
             .error_for_status()
           {
             Ok(response) => {
-              let json_data = response.json::<AliceLookingGlassRoutesScheme>().await?;
+              let json_data = response.json::<LookingGlassRoutesScheme>().await?;
 
               total_number_of_pages = json_data.pagination.total_pages;
               let mut route_array: Vec<IpNet> = json_data
                 .imported
                 .into_iter()
-                .map(|alice_looking_glass_import: AliceLookingGlassImport| {
-                  alice_looking_glass_import.network
-                })
+                .map(|looking_glass_import: LookingGlassImport| looking_glass_import.network)
                 .collect();
               routes.append(&mut route_array);
             }
@@ -101,30 +100,30 @@ impl Updater for AliceLookingGlassUpdater {
 
 #[derive(Clone)]
 pub struct LookingGlass {
-  pub routes: Arc<Cache<AliceLookingGlassUpdater>>,
+  pub routes: Arc<Cache<LookingGlassUpdater>>,
 }
 
 #[derive(Deserialize)]
-struct AliceLookingGlassPagination {
+struct LookingGlassPagination {
   total_pages: u32,
 }
 
 #[derive(Deserialize, Clone)]
-struct AliceLookingGlassImport {
+struct LookingGlassImport {
   network: IpNet,
 }
 
 #[derive(Deserialize)]
-struct AliceLookingGlassRoutesScheme {
-  pagination: AliceLookingGlassPagination,
-  imported: Vec<AliceLookingGlassImport>,
+struct LookingGlassRoutesScheme {
+  pagination: LookingGlassPagination,
+  imported: Vec<LookingGlassImport>,
 }
 
 impl LookingGlass {
   pub(crate) async fn load(looking_glass_url: Url) -> anyhow::Result<Self> {
     Ok(Self {
       routes: Arc::new(Cache::new(
-        AliceLookingGlassUpdater::load(looking_glass_url).await?,
+        LookingGlassUpdater::load(looking_glass_url).await?,
       )),
     })
   }

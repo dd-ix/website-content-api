@@ -46,10 +46,10 @@ pub(crate) struct Args {
 
   #[clap(
     long,
-    env = "WEBSITE_CONTENT_API_ALICE_LOOKING_GLASS_URL",
+    env = "WEBSITE_CONTENT_API_LOOKING_GLASS_URL",
     default_value = "https://lg.dd-ix.net/"
   )]
-  pub(crate) alice_looking_glass_address: Url,
+  pub(crate) looking_glass_url: Url,
 
   #[clap(
     long,
