@@ -76,7 +76,7 @@ async fn main() -> anyhow::Result<()> {
     bird: Bird::new(args.bird_html).await?,
     events: Events::load(&args.content_directory.join("event")).await?,
     mirrors: Mirrors::load(&args.content_directory.join("mirrors.yaml")).await?,
-    looking_glass: LookingGlass::load(args.alice_looking_glass_address).await?,
+    looking_glass: LookingGlass::load(args.looking_glass_url).await?,
   };
 
   let stats = state.stats.clone();
