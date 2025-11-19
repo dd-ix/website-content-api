@@ -31,11 +31,6 @@ in
         '';
       };
     };
-    logLevel = lib.mkOption {
-      type = lib.types.str;
-      default = "info";
-      description = ''log level of the application'';
-    };
     url = lib.mkOption {
       type = lib.types.str;
       description = ''under which domain website-content-api serves its content'';
@@ -60,8 +55,6 @@ in
       wantedBy = [ "multi-user.target" ];
 
       environment = {
-        RUST_LOG = cfg.logLevel;
-        RUST_BACKTRACE = if (cfg.logLevel == "info") then "0" else "1";
         WEBSITE_CONTENT_API_LISTEN_ADDR = "${cfg.http.host}:${toString cfg.http.port}";
         WEBSITE_CONTENT_API_CONTENT_DIRECTORY = "${pkgs.website-content}/content/";
         WEBSITE_CONTENT_API_BASE_URL = cfg.url;
