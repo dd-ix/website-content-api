@@ -28,7 +28,7 @@ pub(crate) async fn get_connected_to_community(
 
   let routes = match state.looking_glass.routes.get_cached().await {
     Some(routes) => routes,
-    None => return Err(StatusCode::NOT_FOUND),
+    None => return Err(StatusCode::SERVICE_UNAVAILABLE),
   };
 
   Ok(Json(Arc::new(NetworkInformation {
