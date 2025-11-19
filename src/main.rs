@@ -52,6 +52,8 @@ async fn main() -> anyhow::Result<()> {
 
   tracing::subscriber::set_global_default(subscriber)?;
 
+  println!("test");
+
   info!(concat!(
     "Booting ",
     env!("CARGO_PKG_NAME"),
