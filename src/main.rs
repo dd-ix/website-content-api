@@ -1,9 +1,7 @@
-use std::net::SocketAddr;
-use std::time::Duration;
-
 use axum::http::header::CONTENT_TYPE;
 use axum::http::Method;
 use clap::Parser;
+use std::time::Duration;
 use tokio::net::TcpListener;
 use tower_http::cors::{Any, CorsLayer};
 use tracing::{error, info, Level};
@@ -123,10 +121,7 @@ async fn main() -> anyhow::Result<()> {
   let listener = TcpListener::bind(&args.listen_addr).await?;
   info!("Listening on http://{}...", args.listen_addr);
 
-  let server = axum::serve(
-    listener,
-    router.into_make_service_with_connect_info::<SocketAddr>(),
-  );
+  let server = axum::serve(listener, router.into_make_service());
 
   if let Err(err) = server.await {
     error!("Error while serving api: {}", err);
