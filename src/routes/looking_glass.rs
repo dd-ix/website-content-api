@@ -7,6 +7,7 @@ use serde::Serialize;
 use std::net::IpAddr;
 use std::str::FromStr;
 use std::sync::Arc;
+use tracing::info;
 
 #[derive(Serialize)]
 pub struct NetworkInformation {
@@ -26,6 +27,7 @@ pub(crate) async fn get_connected_to_community(
     .map_err(|_| StatusCode::BAD_REQUEST)
     .and_then(|string_value| IpAddr::from_str(string_value).map_err(|_| StatusCode::BAD_REQUEST))?;
 
+  info!("addr is {}", addr);
   let routes = match state.looking_glass.routes.get_cached().await {
     Some(routes) => routes,
     None => return Err(StatusCode::SERVICE_UNAVAILABLE),

@@ -69,7 +69,7 @@ impl Updater for LookingGlassUpdater {
           match self
             .client
             .get(self.looking_glass_url.join(&format!(
-              "/api/v1/routeservers/rs01_{}/neighbors/AS{}_1/routes/received?pf={}",
+              "/api/v1/routeservers/rs01_{}/neighbors/AS{}_1/routes/received?page={}",
               inet_type, asn, current_page
             ))?)
             .send()

@@ -62,8 +62,6 @@ async fn main() -> anyhow::Result<()> {
     "..."
   ));
 
-  println!("Normal Print!");
-
   let state = FoundationState {
     blog: Blogs::load(&args.content_directory.join("blog")).await?,
     news: News::load(&args.content_directory.join("news")).await?,
