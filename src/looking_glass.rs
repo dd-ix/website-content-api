@@ -37,6 +37,7 @@ impl Updater for LookingGlassUpdater {
   type Error = anyhow::Error;
 
   async fn update(&self) -> Result<Self::Output, Self::Error> {
+    info!("Updating looking glass cache!");
     let asns: Vec<i32> = self
       .client
       .get(
@@ -53,7 +54,8 @@ impl Updater for LookingGlassUpdater {
       .iter()
       .map(|neighbor| neighbor.asn)
       .collect();
-
+    
+    info!("Fetching routes from {} asns!", asns.len());
     let mut routes = Vec::new();
 
     for inet_type in ["v4", "v6"] {
