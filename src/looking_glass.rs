@@ -4,7 +4,7 @@ use reqwest::Client;
 use serde::Deserialize;
 use std::net::IpAddr;
 use std::sync::Arc;
-use tracing::{error, info};
+use tracing::{debug, error, info};
 use url::Url;
 
 #[derive(Clone)]
@@ -54,7 +54,7 @@ impl Updater for LookingGlassUpdater {
       .iter()
       .map(|neighbor| neighbor.asn)
       .collect();
-    
+
     info!("Fetching routes from {} asns!", asns.len());
     let mut routes = Vec::new();
 
@@ -78,7 +78,6 @@ impl Updater for LookingGlassUpdater {
           {
             Ok(response) => {
               let json_data = response.json::<LookingGlassRoutesScheme>().await?;
-
               total_number_of_pages = json_data.pagination.total_pages;
               let mut route_array: Vec<IpNet> = json_data
                 .imported
