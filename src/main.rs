@@ -1,8 +1,7 @@
-use std::time::Duration;
-
 use axum::http::header::CONTENT_TYPE;
 use axum::http::Method;
 use clap::Parser;
+use std::time::Duration;
 use tokio::net::TcpListener;
 use tower_http::cors::{Any, CorsLayer};
 use tracing::{error, info, Level};
@@ -13,6 +12,7 @@ use crate::bird::Bird;
 use crate::blog::Blogs;
 use crate::documents::Documents;
 use crate::event::Events;
+use crate::looking_glass::LookingGlass;
 use crate::mirrors::Mirrors;
 use crate::news::News;
 use crate::peers::NetworkService;
@@ -30,6 +30,7 @@ mod cache;
 mod documents;
 mod event;
 mod lang;
+mod looking_glass;
 mod mirrors;
 mod news;
 mod peers;
@@ -75,9 +76,11 @@ async fn main() -> anyhow::Result<()> {
     bird: Bird::new(args.bird_html).await?,
     events: Events::load(&args.content_directory.join("event")).await?,
     mirrors: Mirrors::load(&args.content_directory.join("mirrors.yaml")).await?,
+    looking_glass: LookingGlass::load(args.looking_glass_url).await?,
   };
 
   let stats = state.stats.clone();
+  let looking_glass = state.looking_glass.clone();
   tokio::spawn(async move {
     loop {
       if let Err(err) = stats.update().await {
@@ -86,6 +89,16 @@ async fn main() -> anyhow::Result<()> {
       } else {
         tokio::time::sleep(Duration::from_secs(60 * 10)).await;
       }
+    }
+  });
+
+  tokio::spawn(async move {
+    loop {
+      if let Err(e) = looking_glass.routes.get().await {
+        error!("error while updating routes cache: {e}");
+      }
+
+      tokio::time::sleep(Duration::from_secs(60 * 60)).await;
     }
   });
 
