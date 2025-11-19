@@ -8,7 +8,7 @@ tokio = { version = "1.48", default-features = false, features = ["macros", "rt-
 reqwest = { version = "0.12", features = ["json", "rustls-tls-webpki-roots"], default-features = false }
 axum = { version = "0.8", default-features = false, features = ["tokio", "http1", "json", "query","macros"] }
 time = { version = "0.3", default-features = false, features = ["serde", "std", "formatting", "parsing"] }
-tracing-subscriber = { version = "0.3", default-features = false, features = ["fmt", "ansi"] }
+tracing-subscriber = { version = "0.3", features = ["fmt", "ansi"] }
 tower-http = { version = "0.6", default-features = false, features = ["cors", "fs"] }
 serde = { version = "1.0", default-features = false, features = ["derive", "rc"] }
 serde_yaml_ng = { version = "0.10", default-features = false }
@@ -18,7 +18,7 @@ strum = {version = "0.27", default-features = false}
 strum_macros = {version = "0.27", default-features = false}
 serde_json = { version = "1.0" }
 markdown = "1.0"
-tracing = "0.1"
+tracing = {version = "0.1", default-features = false, features= ["release_max_level_info"]}
 anyhow = "1.0"
 regex = "1.12"
 select = "0.6"
