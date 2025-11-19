@@ -55,7 +55,7 @@ impl Updater for LookingGlassUpdater {
       .map(|neighbor| neighbor.asn)
       .collect();
 
-    info!("Fetching routes from {} asns!", asns.len());
+    println!("Fetching routes from {} asns!", asns.len());
     let mut routes = Vec::new();
 
     for inet_type in ["v4", "v6"] {
@@ -63,7 +63,7 @@ impl Updater for LookingGlassUpdater {
         let mut total_number_of_pages = 1;
         let mut current_page = 0;
         while current_page < total_number_of_pages {
-          info!(
+          println!(
             "fetching {inet_type} routes for asn {asn}: page {current_page}/{total_number_of_pages}",
           );
           match self
