@@ -26,9 +26,12 @@ pub(crate) async fn get_connected_to_community(
     .map_err(|_| StatusCode::BAD_REQUEST)
     .and_then(|string_value| IpAddr::from_str(string_value).map_err(|_| StatusCode::BAD_REQUEST))?;
 
-  let routes = state.looking_glass.routes.get_cached();
+  let routes = match state.looking_glass.routes.get_cached().await {
+    Some(routes) => routes,
+    None => return Err(StatusCode::NOT_FOUND),
+  };
 
   Ok(Json(Arc::new(NetworkInformation {
-    is_connected: is_address_in_network(&(routes.await), addr),
+    is_connected: is_address_in_network(&(routes), addr),
   })))
 }
