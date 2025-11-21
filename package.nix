@@ -1,20 +1,17 @@
-{ lib, rustPackages_1_88, ... }:
+{ lib, rustPlatform, ... }:
 
 let
-  inherit (rustPackages_1_88) rustPlatform;
   manifest = (lib.importTOML ./Cargo.toml).package;
 in
-rustPlatform.buildRustPackage rec {
-  pname = manifest.name;
+rustPlatform.buildRustPackage {
+  pname = "ddix-website-content-api";
   inherit (manifest) version;
 
   src = lib.cleanSource ./.;
   cargoLock.lockFile = ./Cargo.lock;
 
-  cargoBuildFlags = "-p ${pname}";
-  cargoTestFlags = "-p ${pname}";
+  cargoBuildFlags = "-p ${manifest.name}";
+  cargoTestFlags = "-p ${manifest.name}";
 
-  meta = {
-    mainProgram = "website-content-api";
-  };
+  meta.mainProgram = manifest.name;
 }

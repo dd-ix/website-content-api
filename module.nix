@@ -5,10 +5,10 @@ let
 in
 {
   options.dd-ix.website-content-api = {
-    enable = lib.mkEnableOption "website-content-api";
+    enable = lib.mkEnableOption "DD-IX Website Content API";
 
-    package = lib.mkPackageOption pkgs "website-content-api" { };
-    content = lib.mkPackageOption pkgs "website-content" { };
+    package = lib.mkPackageOption pkgs "ddix-website-content-api" { };
+    content = lib.mkPackageOption pkgs "ddix-website-content" { };
 
     domain = lib.mkOption {
       type = lib.types.str;
@@ -50,13 +50,14 @@ in
   };
 
   config = lib.mkIf cfg.enable {
-    systemd.services.website-content-api = {
-      enable = true;
+    systemd.services.ddix-website-content-api = {
+      description = "DD-IX Website Content API";
+
       wantedBy = [ "multi-user.target" ];
 
       environment = {
         WEBSITE_CONTENT_API_LISTEN_ADDR = "${cfg.http.host}:${toString cfg.http.port}";
-        WEBSITE_CONTENT_API_CONTENT_DIRECTORY = "${pkgs.website-content}/content/";
+        WEBSITE_CONTENT_API_CONTENT_DIRECTORY = "${cfg.content}/content/";
         WEBSITE_CONTENT_API_BASE_URL = cfg.url;
         WEBSITE_CONTENT_API_LOOKING_GLASS_URL = cfg.lookingGlassUrl;
         WEBSITE_CONTENT_API_PROMETHEUS_URL = cfg.prometheusUrl;
@@ -64,7 +65,7 @@ in
       };
 
       serviceConfig = {
-        ExecStart = lib.getExe pkgs.website-content-api;
+        ExecStart = lib.getExe cfg.package;
         DynamicUser = true;
         Restart = "always";
       };
