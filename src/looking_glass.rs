@@ -87,7 +87,7 @@ impl Updater for LookingGlassUpdater {
               routes.append(&mut route_array);
             }
             Err(e) => {
-              error!("{e}");
+              println!("error when fetching from looking glass: {e}");
             }
           }
           current_page += 1;

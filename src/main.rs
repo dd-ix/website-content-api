@@ -52,8 +52,6 @@ async fn main() -> anyhow::Result<()> {
 
   tracing::subscriber::set_global_default(subscriber)?;
 
-  println!("test");
-
   info!(concat!(
     "Booting ",
     env!("CARGO_PKG_NAME"),
@@ -96,8 +94,9 @@ async fn main() -> anyhow::Result<()> {
 
   tokio::spawn(async move {
     loop {
+      println!("updating cache!");
       if let Err(e) = looking_glass.routes.get().await {
-        error!("error while updating routes cache: {e}");
+        println!("error while updating routes cache: {e}");
       }
 
       tokio::time::sleep(Duration::from_secs(60 * 60)).await;
