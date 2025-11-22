@@ -80,7 +80,6 @@ async fn main() -> anyhow::Result<()> {
   };
 
   let stats = state.stats.clone();
-  let looking_glass = state.looking_glass.clone();
   tokio::spawn(async move {
     loop {
       if let Err(err) = stats.update().await {
@@ -92,6 +91,7 @@ async fn main() -> anyhow::Result<()> {
     }
   });
 
+  let looking_glass = state.looking_glass.clone();
   tokio::spawn(async move {
     loop {
       println!("updating cache!");

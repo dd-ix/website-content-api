@@ -54,6 +54,7 @@ in
       description = "DD-IX Website Content API";
 
       wantedBy = [ "multi-user.target" ];
+      after = [ "network.target" ];
 
       environment = {
         WEBSITE_CONTENT_API_LISTEN_ADDR = "${cfg.http.host}:${toString cfg.http.port}";
