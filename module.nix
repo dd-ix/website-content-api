@@ -60,7 +60,7 @@ in
         WEBSITE_CONTENT_API_LISTEN_ADDR = "${cfg.http.host}:${toString cfg.http.port}";
         WEBSITE_CONTENT_API_CONTENT_DIRECTORY = "${cfg.content}/content/";
         WEBSITE_CONTENT_API_BASE_URL = cfg.url;
-        WEBSITE_CONTENT_API_LOOKING_GLASS_URL = cfg.lookingGlassUrl;
+        #WEBSITE_CONTENT_API_LOOKING_GLASS_URL = cfg.lookingGlassUrl;
         WEBSITE_CONTENT_API_PROMETHEUS_URL = cfg.prometheusUrl;
         WEBSITE_CONTENT_API_IXP_MANAGER_URL = cfg.ixpManagerUrl;
       };

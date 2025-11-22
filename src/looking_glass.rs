@@ -59,42 +59,50 @@ impl Updater for LookingGlassUpdater {
     let mut routes = Vec::new();
 
     for inet_type in ["v4", "v6"] {
-      for asn in &asns {
-        let mut total_number_of_pages = 1;
-        let mut current_page = 0;
-        while current_page < total_number_of_pages {
-          println!(
-            "fetching {inet_type} routes for asn {asn}: page {current_page}/{total_number_of_pages}",
-          );
-          match self
-            .client
-            .get(self.looking_glass_url.join(&format!(
-              "/api/v1/routeservers/rs01_{}/neighbors/AS{}_1/routes/received?page={}",
-              inet_type, asn, current_page
-            ))?)
-            .send()
-            .await?
-            .error_for_status()
-          {
-            Ok(response) => {
-              let json_data = response.json::<LookingGlassRoutesScheme>().await?;
-              println!("response received: {} {}", json_data.imported.len(), json_data.pagination.total_pages);
-              total_number_of_pages = json_data.pagination.total_pages;
-              let mut route_array: Vec<IpNet> = json_data
-                .imported
-                .into_iter()
-                .map(|looking_glass_import: LookingGlassImport| looking_glass_import.network)
-                .collect();
-              routes.append(&mut route_array);
+      for session_type in [1, 2] {
+        for asn in &asns {
+          let mut total_number_of_pages = 1;
+          let mut current_page = 0;
+          while current_page < total_number_of_pages {
+            println!(
+              "fetching {inet_type} routes for asn {asn}: page {current_page}/{total_number_of_pages}",
+            );
+            println!("{}", self.looking_glass_url.join(&format!(
+              "/api/v1/routeservers/rs01_{}/neighbors/AS{}_{}/routes/received?page={}",
+              inet_type, asn, session_type, current_page,
+            ))?);
+            match self
+                .client
+                .get(self.looking_glass_url.join(&format!(
+                  "/api/v1/routeservers/rs01_{}/neighbors/AS{}_{}/routes/received?page={}",
+                  inet_type, asn, session_type, current_page,
+                ))?)
+                .send()
+                .await?
+                .error_for_status()
+            {
+              Ok(response) => {
+                println!("response from alice {}", &response.status());
+                let json_data = response.json::<LookingGlassRoutesScheme>().await?;
+                println!("response received: {} {}", json_data.imported.len(), json_data.pagination.total_pages);
+                total_number_of_pages = json_data.pagination.total_pages;
+                let mut route_array: Vec<IpNet> = json_data
+                    .imported
+                    .into_iter()
+                    .map(|looking_glass_import: LookingGlassImport| looking_glass_import.network)
+                    .collect();
+                routes.append(&mut route_array);
+              }
+              Err(e) => {
+                println!("error when fetching from looking glass: {e}");
+              }
             }
-            Err(e) => {
-              println!("error when fetching from looking glass: {e}");
-            }
+            current_page += 1;
           }
-          current_page += 1;
         }
       }
     }
+    IpNet::aggregate(&mut routes);
 
     Ok(routes)
   }
