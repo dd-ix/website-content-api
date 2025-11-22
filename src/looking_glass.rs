@@ -78,6 +78,7 @@ impl Updater for LookingGlassUpdater {
           {
             Ok(response) => {
               let json_data = response.json::<LookingGlassRoutesScheme>().await?;
+              println!("response received: {} {}", json_data.imported.len(), json_data.pagination.total_pages);
               total_number_of_pages = json_data.pagination.total_pages;
               let mut route_array: Vec<IpNet> = json_data
                 .imported
