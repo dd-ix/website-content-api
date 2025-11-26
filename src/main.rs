@@ -97,9 +97,10 @@ async fn main() -> anyhow::Result<()> {
       println!("updating cache!");
       if let Err(e) = looking_glass.routes.get().await {
         println!("error while updating routes cache: {e}");
+        tokio::time::sleep(Duration::from_secs(10)).await;
+      } else {
+        tokio::time::sleep(Duration::from_secs(60 * 60)).await;
       }
-
-      tokio::time::sleep(Duration::from_secs(60 * 60)).await;
     }
   });
 
